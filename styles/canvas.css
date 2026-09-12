@@ -7,7 +7,9 @@
 }
 #world { position: absolute; left: 0; top: 0; width: 0; height: 0; transform-origin: 0 0; }
 #gridbg {
-  position: absolute; left: -50000px; top: -50000px; width: 100000px; height: 100000px;
+  /* 原点必须是所有格距档位(16 / 20 / 24 / 32)的公倍数,
+     否则网格线相对组件整体偏移(50000 ÷ 24 余 8px → 偏 16px) */
+  position: absolute; left: -48000px; top: -48000px; width: 96000px; height: 96000px;
   background-image:
     linear-gradient(to right, rgba(70,100,140,.16) 0 1px, transparent 1px),
     linear-gradient(to bottom, rgba(70,100,140,.16) 0 1px, transparent 1px),
