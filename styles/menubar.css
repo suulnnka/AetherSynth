@@ -39,3 +39,20 @@
   font-size: 10.5px; color: var(--dim); letter-spacing: 1px;
   padding: 5px 10px 2px; white-space: nowrap;
 }
+
+/* ---------- 右键菜单 ---------- */
+.ctxmenu {
+  position: fixed; z-index: 700; min-width: 190px;
+  background: #ffffff; border: 1px solid var(--line); border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(30,40,60,.25);
+  padding: 4px; display: flex; flex-direction: column;
+}
+.cm-item {
+  display: flex; align-items: center; gap: 6px;
+  padding: 5px 10px; font-size: 12.5px; border-radius: 5px; cursor: pointer;
+}
+.cm-item:hover { background: #f2f5f9; }
+.cm-item.danger { color: #b03030; }
+.cm-item.danger:hover { background: #fbeeee; }
+.cm-mark { width: 14px; flex: 0 0 14px; color: var(--amber); font-weight: 700; }
+.cm-sep { height: 1px; background: var(--line); margin: 4px 6px; }

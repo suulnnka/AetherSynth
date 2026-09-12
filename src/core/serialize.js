@@ -9,7 +9,6 @@ import { createModule } from './module.js';
 import { addCable, removeCable } from './cables.js';
 import { setCellSize, applyView } from './view.js';
 import { mkCustomDef } from '../workshop/custom-def.js';
-import { registerMacroDef, wireMacro } from '../workshop/macros.js';
 import { wireComposite } from './composite.js';
 import { designs, refreshMine } from '../workshop/designs.js';
 import { saveNow, LSKEY } from './save.js';
@@ -47,13 +46,8 @@ export function deserialize(data) {
   designs.length = 0;
   for (const d of (data.designs || [])) {
     if (!d || !d.key || !d.spec) continue;
-    if (d.kind === 'macro') {
-      if (!d.spec.members) continue;
-      registerMacroDef(d.key, d.spec);
-    } else {
-      if (!d.spec.cells) continue;
-      mkCustomDef(d.key, d.spec);
-    }
+    if (!d.spec.cells) continue;
+    mkCustomDef(d.key, d.spec);
     designs.push({ key: d.key, spec: d.spec, kind: d.kind || 'panel' });
   }
   // id 防碰撞:uid 至少抬到已恢复模块 / 设计最大编号之上
@@ -77,16 +71,7 @@ export function deserialize(data) {
   // 组合 / 宏盒子:重载后重建「对外接口 ↔ 内部成员端口」的节点路由,
   // 并恢复盒子 → 成员的父子关系(移动 / 删除联动、活跃度传导都依赖它)
   for (const m of state.mods.values()) {
-    if (m.def.macro) {
-      m.childIds = (m.state.kids || []).slice();
-      for (const kid of m.childIds) {
-        const k = state.mods.get(kid);
-        if (k) k.parent = m.id;
-      }
-      wireMacro(m);
-    } else if (m.def.composite) {
-      wireComposite(m);
-    }
+    if (m.def.composite) wireComposite(m);
   }
   refreshMine();
   if (data.view) { Object.assign(state.view, data.view); applyView(); }

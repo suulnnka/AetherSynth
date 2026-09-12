@@ -1,116 +1,261 @@
-/* 组件工坊面板:宏草稿。
-   在画布上右键组件 → 发送到这里收集;命名后「保存为新组件」:
-   画布上这组组件会化简成一个宏组件,同时定义存入左侧「我的组件」,
-   之后可随时放置新实例(相当于引入这一整组组件)。 */
+/* 组件工坊 · UI 布局编辑器。
+   ---------------------------------------------------------------------
+   · 右侧面板是一张 cols × rows 的格网画布,元素(旋钮 / 推子 / 开关 /
+     电压表)按格摆放,可拖拽移动(自动吸附格子)、可选中编辑属性
+     (名称 / 宽高 / 样式 / 量程)。
+   · 画布上的组件 / 接口可通过右键菜单「发送到工坊」进入这里:
+     发送输入口 = 注入旋钮(把电压送进该口)、
+     发送输出口 = 电压表(监视该口信号)、
+     发送控制类组件(旋钮 / 推子 / 开关)= 镜像控制。
+   · 「保存为新组件」把布局存入左侧「我的组件」;
+     「放置组件」同时放置一个实例。放置后的组件:每个未绑定控件是
+     一路 3.5mm 接口,绑定元素直接操控 / 监视画布上的源端口。 */
 
-import { $ } from '../core/utils.js';
+import { $, clamp } from '../core/utils.js';
 import { state } from '../core/state.js';
 import { firstGesture } from '../core/audio.js';
-import { addCable } from '../core/cables.js';
-import { reflowActive } from '../core/flow.js';
 import { saveSoon } from '../core/save.js';
-import { captureMacroSpec, newMacroKey, registerMacroDef, instantiateMacro } from './macros.js';
-import { addMacroDesign } from './designs.js';
+import { registerDesign, placeAtCenter } from './designs.js';
+import { mkCustomDef, newCustomKey } from './custom-def.js';
+import { makeCell, snapPlacement } from './layout.js';
 import { toast } from '../ui/toast.js';
 
-const draft = [];   // 收集进草稿的组件 id
+const ECS = 24;                       // 编辑器每格像素
+const layout = { name: '我的面板', cols: 8, rows: 6, cells: [] };
+let selId = null;
 
 export function initStudio() {
-  $('#cpmsave').addEventListener('click', () => { firstGesture(); saveMacroDraft().catch(e => toast('保存失败:' + e.message)); });
-  renderDraft();
+  document.querySelectorAll('#cptoobar .cpadd').forEach(btn => btn.addEventListener('click', () => {
+    firstGesture();
+    addCell(btn.dataset.add);
+  }));
+  $('#cpcols').value = layout.cols;
+  $('#cprows').value = layout.rows;
+  $('#cpcols').addEventListener('change', () => {
+    layout.cols = clamp(+$('#cpcols').value || 8, 2, 16);
+    $('#cpcols').value = layout.cols;
+    render();
+  });
+  $('#cprows').addEventListener('change', () => {
+    layout.rows = clamp(+$('#cprows').value || 6, 2, 24);
+    $('#cprows').value = layout.rows;
+    render();
+  });
+  $('#cpsave').addEventListener('click', () => { firstGesture(); saveDesign(); });
+  $('#cpplace').addEventListener('click', () => { firstGesture(); placeCurrent(); });
+  wireInspector();
+  render();
 }
 
 export function isStudioVisible() { return !$('#ctrlpanel').classList.contains('hidden'); }
 
-export function toggleStudio() {
-  $('#ctrlpanel').classList.toggle('hidden');
-}
+export function toggleStudio() { $('#ctrlpanel').classList.toggle('hidden'); }
 
 export function ensureStudioVisible() { $('#ctrlpanel').classList.remove('hidden'); }
 
-/** 右键画布组件:发送到宏草稿(组合 / 宏不能嵌套,禁止递归) */
-export function sendToWorkshop(mod) {
-  firstGesture();
-  if (mod.def.composite || mod.def.macro) { toast('组合 / 宏组件不能发送进宏(禁止递归)'); return; }
-  if (mod.parent) { toast('组合内部的组件不能直接发送,请先解体组合'); return; }
-  if (draft.includes(mod.id)) { toast('已在宏草稿中'); return; }
-  draft.push(mod.id);
-  ensureStudioVisible();
-  renderDraft();
-  toast('已发送到工坊(共 ' + draft.length + ' 个组件)');
+/* ---------------- 添加元素 ---------------- */
+function addCell(kind) {
+  if (layout.cells.length >= 24) { toast('一个面板最多 24 个元素'); return; }
+  const names = { knob: '旋钮', fader: '推子', switch: '开关', meter: '电压表' };
+  const defaults = {
+    knob: { w: 2, h: 2, value: 5 },
+    fader: { w: 1, h: 3, value: 5 },
+    switch: { w: 2, h: 1, value: false },
+    meter: { w: 1, h: 3 }
+  }[kind];
+  const n = layout.cells.length + 1;
+  const cell = makeCell(kind, { ...defaults, label: names[kind] + n });
+  const spot = snapPlacement(layout.cells, cell, 0, 0, layout.cols, layout.rows);
+  cell.col = spot.col; cell.row = spot.row;
+  layout.cells.push(cell);
+  select(cell.id);
+  render();
 }
 
-function renderDraft() {
-  const list = $('#cpmlist');
-  if (!list) return;
-  list.innerHTML = '';
-  const alive = [];
-  for (const id of draft) {
-    const m = state.mods.get(id);
-    if (!m) continue;                       // 已被删除的自动剔除
-    alive.push(id);
-    const it = document.createElement('div');
-    it.className = 'cpm-item';
-    it.innerHTML = `<span>${m.def.name}</span><span class="cpm-x" title="移出草稿">✕</span>`;
-    it.querySelector('.cpm-x').addEventListener('click', () => {
-      const i = draft.indexOf(id);
-      if (i >= 0) draft.splice(i, 1);
-      renderDraft();
-    });
-    list.appendChild(it);
+/* ---------------- 布局画布渲染与拖拽 ---------------- */
+function render() {
+  const grid = $('#cpgrid');
+  grid.style.gridTemplateColumns = `repeat(${layout.cols}, ${ECS}px)`;
+  grid.style.gridAutoRows = ECS + 'px';
+  grid.innerHTML = '';
+  for (const c of layout.cells) {
+    const t = document.createElement('div');
+    t.className = 'cp-el' + (c.id === selId ? ' sel' : '');
+    t.dataset.cell = c.id;
+    t.style.gridColumn = (c.col + 1) + ' / span ' + c.w;
+    t.style.gridRow = (c.row + 1) + ' / span ' + c.h;
+    t.innerHTML = '<span class="cp-el-label">' + c.label + '</span>';
+    if (c.bind) {
+      const src = state.mods.get(c.bind.m);
+      t.innerHTML += '<span class="cp-el-bind">' + (src ? src.def.name : '?') + '.' + c.bind.p + '</span>';
+    }
+    grid.appendChild(t);
+    t.addEventListener('pointerdown', e => startDrag(e, c, t));
   }
-  draft.length = 0;
-  draft.push(...alive);
-  $('#cpmcount').textContent = draft.length ? '(' + draft.length + ')' : '';
-  $('#cpmempty').style.display = draft.length ? 'none' : '';
-  $('#cpmsave').style.opacity = draft.length ? 1 : 0.5;
+  syncInspector();
 }
 
-/** 保存为新组件:捕获规格 → 注册定义 → 画布上化简为宏实例(外部接线原样重连) */
-async function saveMacroDraft() {
-  if (!draft.length) { toast('草稿是空的:先在画布上右键组件发送到这里'); return; }
-  const mods = draft.map(id => state.mods.get(id)).filter(Boolean);
-  if (mods.length !== draft.length) { toast('草稿中有组件已被删除'); renderDraft(); return; }
-  for (const m of mods)
-    if (m.def.composite || m.def.macro || m.parent) { toast('组合 / 宏不能嵌套(禁止递归)'); return; }
-
-  const name = $('#cpmname').value.trim() || '宏组件';
-  const minX = Math.min(...mods.map(m => m.cx));
-  const minY = Math.min(...mods.map(m => m.cy));
-
-  // 1) 捕获规格(内部接线 / 对外接口),并记录边界接线(化简替换后重连)
-  const { spec, boundary } = captureMacroSpec(draft.slice(), state.mods, state.cables, name);
-  spec.name = name;
-
-  // 2) 注册定义并移除原成员(静默,接线已记录在案)
-  const key = newMacroKey();
-  registerMacroDef(key, spec);
-  addMacroDesign(key, spec);
-  for (const id of draft) removeQuiet(id);
-
-  // 3) 在原位置放置宏实例(展开内部组件),并重连边界接线
-  const box = await instantiateMacro(key, minX - 1, minY - 1);
-  for (const b of boundary) {
-    if (b.dir === 'in') addCable(b.far.m, b.far.p, box.id, b.extId, b.color);
-    else addCable(box.id, b.extId, b.far.m, b.far.p, b.color);
-  }
-  draft.length = 0;
-  renderDraft();
-  saveSoon();
-  toast('已保存宏组件「' + name + '」并存入「我的组件」');
+function startDrag(e, cell, tile) {
+  if (e.button !== 0) return;
+  e.preventDefault();
+  select(cell.id);
+  const rect = $('#cpgrid').getBoundingClientRect();
+  const ox = e.clientX - rect.left - cell.col * ECS;
+  const oy = e.clientY - rect.top - cell.row * ECS;
+  let moved = false;
+  const mv = ev => {
+    const nc = clamp(Math.round((ev.clientX - rect.left - ox) / ECS), 0, layout.cols - cell.w);
+    const nr = clamp(Math.round((ev.clientY - rect.top - oy) / ECS), 0, layout.rows - cell.h);
+    if (nc !== cell.col || nr !== cell.row) {
+      cell.col = nc; cell.row = nr; moved = true;
+      tile.style.gridColumn = (nc + 1) + ' / span ' + cell.w;
+      tile.style.gridRow = (nr + 1) + ' / span ' + cell.h;
+    }
+  };
+  const up = () => {
+    window.removeEventListener('pointermove', mv);
+    window.removeEventListener('pointerup', up);
+    if (moved) { saveSoon(); syncInspector(); }
+  };
+  window.addEventListener('pointermove', mv);
+  window.addEventListener('pointerup', up);
 }
 
-/** 静默移除一个组件(保存流程专用:接线由边界重连方案处理) */
-function removeQuiet(id) {
-  const m = state.mods.get(id);
-  if (!m) return;
-  [...state.cables.values()].filter(c => c.a.m === id || c.b.m === id).forEach(c => {
-    if (!c.midi) { try { c.aNode.disconnect(c.bNode); } catch (e) {} }
-    c.hit.remove(); c.wire.remove();
-    state.cables.delete(c.id);
+/* ---------------- 属性检查器 ---------------- */
+function selected() { return layout.cells.find(c => c.id === selId) || null; }
+
+function syncInspector() {
+  const box = $('#cpprops');
+  const c = selId ? layout.cells.find(x => x.id === selId) : null;
+  box.classList.toggle('hidden', !c);
+  if (!c) return;
+  $('#cpilabel').value = c.label || '';
+  $('#cpiw').value = c.w;
+  $('#cpih').value = c.h;
+  $('#cpistyle').value = c.style || 'dark';
+  const ranged = c.kind === 'knob' || c.kind === 'fader';
+  $('#cpirange').style.display = ranged ? 'flex' : 'none';
+  if (ranged) { $('#cpimin').value = c.min ?? 0; $('#cpimax').value = c.max ?? 10; }
+  const bind = $('#cpibind');
+  if (c.bind) {
+    const src = state.mods.get(c.bind.m);
+    bind.textContent = '绑定:' + (src ? src.def.name : '?') + '.' + c.bind.p;
+    bind.style.display = '';
+  } else bind.style.display = 'none';
+}
+
+function wireInspector() {
+  $('#cpilabel').addEventListener('input', () => {
+    const c = selected(); if (!c) return;
+    c.label = $('#cpilabel').value; render();
   });
-  m.dispose();
-  m.el.remove();
-  state.mods.delete(id);
-  reflowActive();
+  $('#cpiw').addEventListener('change', () => {
+    const c = selected(); if (!c) return;
+    c.w = clamp(+$('#cpiw').value || 1, 1, 4); render();
+  });
+  $('#cpih').addEventListener('change', () => {
+    const c = selected(); if (!c) return;
+    c.h = clamp(+$('#cpih').value || 1, 1, 4); render();
+  });
+  $('#cpistyle').addEventListener('change', () => {
+    const c = selected(); if (!c) return;
+    c.style = $('#cpistyle').value; render();
+  });
+  const applyRange = () => {
+    const c = selected(); if (!c) return;
+    let min = +$('#cpimin').value, max = +$('#cpimax').value;
+    if (!isFinite(min)) min = 0;
+    if (!isFinite(max)) max = 10;
+    if (max <= min) max = min + 1;
+    c.min = min; c.max = max; render();
+  };
+  $('#cpimin').addEventListener('change', applyRange);
+  $('#cpimax').addEventListener('change', applyRange);
+  $('#cppropsx').addEventListener('click', () => select(null));
+}
+
+function select(id) {
+  selId = id;
+  render();
+}
+
+/* ---------------- 保存 / 放置 ---------------- */
+function currentSpec() {
+  const name = $('#cpmname').value.trim() || '我的面板';
+  return {
+    name, cols: layout.cols, rows: layout.rows,
+    cells: layout.cells.map(c => {
+      const o = { id: c.id, kind: c.kind, label: c.label, col: c.col, row: c.row, w: c.w, h: c.h, style: c.style };
+      if (c.kind === 'knob' || c.kind === 'fader') { o.min = c.min; o.max = c.max; o.value = c.value; }
+      if (c.kind === 'switch') o.value = !!c.value;
+      if (c.bind) o.bind = { ...c.bind };
+      return o;
+    })
+  };
+}
+
+function saveDesign() {
+  if (!layout.cells.length) { toast('先用「＋旋钮 / ＋推子…」添加元素,再保存'); return null; }
+  const key = newCustomKey();
+  const spec = currentSpec();
+  mkCustomDef(key, spec);
+  registerDesign(key, spec);
+  toast('已保存「' + spec.name + '」到「我的组件」');
+  return key;
+}
+
+function placeCurrent() {
+  const key = saveDesign();
+  if (!key) return;
+  placeAtCenter(key);
+  toast('已放置面板组件');
+}
+
+/* ---------------- 画布 → 工坊:发送绑定元素 ---------------- */
+
+/** 发送输入口:注入旋钮(面板旋钮的电压直接送进该输入口) */
+export function sendPortToWorkshop(mod, port, kind) {
+  firstGesture();
+  if (layout.cells.length >= 24) { toast('一个面板最多 24 个元素'); return; }
+  const bind = { m: mod.id, p: port.id, mode: kind === 'meter' ? 'monitor' : 'inject' };
+  const label = port.name;
+  const cell = makeCell(kind, {
+    label,
+    bind,
+    w: kind === 'meter' ? 1 : 2,
+    h: kind === 'meter' ? 3 : 2,
+    value: 5, min: 0, max: 10
+  });
+  const spot = snapPlacement(layout.cells, cell, 0, 0, layout.cols, layout.rows);
+  cell.col = spot.col; cell.row = spot.row;
+  layout.cells.push(cell);
+  ensureStudioVisible();
+  select(cell.id);
+  render();
+  toast('已发送到工坊:' + (kind === 'meter' ? '电压表(监视 ' : '注入旋钮(') + mod.def.name + '.' + port.name + ')');
+}
+
+/** 发送控制类组件:镜像控制(面板旋钮 = 画布上那只旋钮) */
+export function sendControlToWorkshop(mod) {
+  firstGesture();
+  if (layout.cells.length >= 24) { toast('一个面板最多 24 个元素'); return; }
+  const kindMap = { bigknob: 'knob', hfader: 'fader' };
+  const kind = kindMap[mod.def.id] || mod.def.id;
+  const mainPort = mod.def.ports[0];
+  const cell = makeCell(kind, {
+    label: mod.def.name,
+    bind: { m: mod.id, p: mainPort.id, mode: 'mirror' },
+    w: kind === 'switch' ? 2 : 2,
+    h: kind === 'switch' ? 1 : 2,
+    min: mod.def.id === 'biknob' ? -5 : 0,
+    max: mod.def.id === 'biknob' ? 5 : 10,
+    value: mod.state.v ?? (mod.state.on ?? 0)
+  });
+  const spot = snapPlacement(layout.cells, cell, 0, 0, layout.cols, layout.rows);
+  cell.col = spot.col; cell.row = spot.row;
+  layout.cells.push(cell);
+  ensureStudioVisible();
+  select(cell.id);
+  render();
+  toast('已发送到工坊:镜像控制「' + mod.def.name + '」');
 }

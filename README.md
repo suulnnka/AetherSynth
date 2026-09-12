@@ -53,12 +53,13 @@ npm test         # 运行单元测试(Node 内置 test runner,零依赖)
 │   │   ├── math.js       数字运算组件工厂(加 / 减 / 乘 / 除 / 选择器…)
 │   │   ├── outputs.js    立体声喇叭 / 示波器 / XY / 录音机
 │   │   └── index.js      总装:注册 + 侧栏顺序
-│   ├── workshop/         组件工坊(创建个性化新组件 UI)
-│   │   ├── panel.js        CompactPanel 设计面板(可独立复用)
-│   │   ├── panel-styles.js 面板样式(独立注入)
-│   │   ├── custom-def.js   设计规格 → 真组件定义(布局为纯函数,可单测)
-│   │   ├── studio.js       面板宿主:工具栏 / 属性检查器 / 外观尺寸
-│   │   └── designs.js      设计清单(我的组件)/ 放置 / 再编辑 / 更新
+│   ├── workshop/         组件工坊:UI 布局编辑器(按格拖拽排版)
+│   │   ├── panel.js        CompactPanel 控件格渲染(可独立复用)
+│   │   ├── panel-styles.js 控件格样式(独立注入)
+│   │   ├── layout.js       布局模型(格位 / 吸附 / 尺寸,纯函数可单测)
+│   │   ├── custom-def.js   布局规格 → 真组件定义(含端口绑定注入/监视)
+│   │   ├── studio.js       工坊面板:添加 / 拖拽排版 / 属性检查器 / 保存放置
+│   │   └── designs.js      设计清单(我的组件)/ 放置 / 删除
 │   ├── palette/          左侧组件栏渲染
 │   ├── songs/            示例歌曲数据 / 搭棚 / 演示音色
 │   ├── interactions/     画布指针 / 全局键盘 / 右键菜单

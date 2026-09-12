@@ -26,14 +26,46 @@
     </div>
   </div>
   <aside id="ctrlpanel" class="hidden">
-    <div id="cpdhead">宏草稿 <span id="cpmcount"></span></div>
-    <div id="cpmlist"></div>
-    <div id="cpmempty">在画布上右键组件,<br>发送到这里收集。<br>保存后会化简成一个新组件。</div>
-    <div id="cpdfoot">
-      <input id="cpmname" placeholder="新组件名称">
-      <button id="cpmsave" class="tbtn primary">保存为新组件</button>
+    <div id="cptoobar">
+      <button class="tbtn cpadd" data-add="knob" title="添加旋钮元素(放置后 = 一路 CV 输出口)">＋旋钮</button>
+      <button class="tbtn cpadd" data-add="fader" title="添加推子元素(放置后 = 一路 CV 输出口)">＋推子</button>
+      <button class="tbtn cpadd" data-add="switch" title="添加开关元素(放置后 = 一路门输出口)">＋开关</button>
+      <button class="tbtn cpadd" data-add="meter" title="添加电压表(放置后 = 一路信号输入口)">＋电压表</button>
     </div>
-    <div id="cpmnote">放置这个新组件时,会展开内部的全部组件与接线 —— 就像调用一个函数。</div>
+    <div id="cpprops" class="hidden">
+      <div class="crow"><span class="cplabel">元素属性</span><button id="cppropsx" class="tbtn" title="关闭">✕</button></div>
+      <div class="crow">名称 <input type="text" id="cpilabel" maxlength="10" style="flex:1;min-width:0"></div>
+      <div class="crow">宽
+        <select id="cpiw"><option value="1">1</option><option value="2" selected>2</option><option value="3">3</option><option value="4">4</option></select>
+        高
+        <select id="cpih"><option value="1">1</option><option value="2" selected>2</option><option value="3">3</option><option value="4">4</option></select>
+        样式
+        <select id="cpistyle">
+          <option value="dark">深色</option>
+          <option value="silver">银色</option>
+          <option value="neon">霓虹</option>
+          <option value="retro">复古</option>
+          <option value="minimal">极简</option>
+        </select>
+      </div>
+      <div class="crow" id="cpirange">范围
+        <input type="number" id="cpimin" step="0.5" style="width:44px"> ~
+        <input type="number" id="cpimax" step="0.5" style="width:44px"> V
+      </div>
+      <div class="crow" id="cpibind"></div>
+    </div>
+    <div id="cpsizebar">面板尺寸
+      <input type="number" id="cpcols" min="2" max="16" value="8" style="width:40px"> 列 ×
+      <input type="number" id="cprows" min="2" max="24" value="6" style="width:40px"> 行
+    </div>
+    <div id="cpgridwrap"><div id="cpgrid"></div></div>
+    <div id="cpdfoot">
+      <div class="crow">面板名称 <input type="text" id="cpmname" value="我的面板" style="flex:1;min-width:0"></div>
+      <div class="crow">
+        <button id="cpsave" class="tbtn" style="flex:1" title="把布局存入左侧「我的组件」">保存设计</button>
+        <button id="cpplace" class="tbtn primary" style="flex:1" title="保存并放置一个实例到画布">⬇ 放置组件</button>
+      </div>
+    </div>
   </aside>
 </div>
 

@@ -1,37 +1,81 @@
-/* ---------- 组件工坊(宏草稿面板) ---------- */
+/* ---------- 组件工坊(UI 布局编辑器) ---------- */
 #ctrlpanel {
-  width: 240px; flex: 0 0 240px; background: var(--panel);
+  width: 268px; flex: 0 0 268px; background: var(--panel);
   border-left: 1px solid var(--line); min-height: 0; z-index: 15;
   display: flex; flex-direction: column;
 }
 #ctrlpanel.hidden { display: none; }
-#cpdhead {
-  padding: 9px 10px; font-weight: 700; font-size: 12.5px; letter-spacing: 1px;
-  border-bottom: 1px solid var(--line); background: var(--panel2);
+
+/* ＋控件 工具条 */
+#cptoobar {
+  display: flex; gap: 4px; padding: 6px; border-bottom: 1px solid var(--line);
+  flex-wrap: wrap;
 }
-#cpmcount { color: var(--amber); }
-#cpmlist { flex: 1; overflow-y: auto; padding: 6px; }
-.cpm-item {
-  display: flex; align-items: center; gap: 6px;
-  background: #ffffff; border: 1px solid var(--line); border-radius: 6px;
-  padding: 5px 8px; margin-bottom: 4px; font-size: 12px;
+#cptoobar .cpadd { flex: 1 1 auto; padding: 4px 6px; font-size: 11.5px; white-space: nowrap; }
+
+/* 通用属性行(检查器 / 底栏共用) */
+#ctrlpanel .crow, #cpdfoot .crow {
+  display: flex; align-items: center; gap: 5px; flex-wrap: wrap;
+  font-size: 11px; color: var(--dim);
 }
-.cpm-item span:first-child { flex: 1; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
-.cpm-x { cursor: pointer; color: var(--dim); padding: 0 3px; border-radius: 4px; }
-.cpm-x:hover { color: #b03030; background: #fbeeee; }
-#cpmempty {
-  padding: 18px 12px; text-align: center; font-size: 11px; line-height: 1.8;
-  color: var(--dim);
-}
-#cpdfoot {
-  display: flex; flex-direction: column; gap: 6px;
-  padding: 8px; border-top: 1px solid var(--line);
-}
-#cpdfoot input {
+#ctrlpanel select, #ctrlpanel input[type="number"], #ctrlpanel input[type="text"] {
   background: #ffffff; color: var(--txt); border: 1px solid var(--line);
-  border-radius: 6px; padding: 5px 8px; font-size: 12px;
+  border-radius: 5px; padding: 2px 5px; font-size: 11px;
 }
-#cpmnote { padding: 8px 10px; font-size: 10.5px; color: var(--dim); line-height: 1.7; }
+#ctrlpanel input[type="checkbox"] { accent-color: var(--amber); }
+.cplabel { font-weight: 700; color: var(--txt); letter-spacing: 1px; }
+
+/* 元素属性检查器 */
+#cpprops {
+  padding: 6px 8px; border-bottom: 1px solid var(--line);
+  display: flex; flex-direction: column; gap: 5px; font-size: 11px; color: var(--dim);
+}
+#cpprops.hidden { display: none; }
+#cpprops .cplabel { font-weight: 700; color: var(--txt); }
+#cppropsx { padding: 1px 6px; font-size: 10px; margin-left: auto; }
+#cpibind { color: var(--amber); font-size: 10.5px; }
+
+/* 面板尺寸(格) */
+#cpsizebar {
+  padding: 6px 8px; border-bottom: 1px solid var(--line);
+  display: flex; gap: 6px; align-items: center; font-size: 11.5px; color: var(--dim);
+}
+#cpsizebar input { width: 42px; }
+
+/* 布局画布(按格) */
+#cpgridwrap { flex: 1; overflow: auto; padding: 10px; }
+#cpgrid {
+  display: grid; width: max-content; margin: 0 auto;
+  background-color: #ffffff;
+  background-image:
+    linear-gradient(to right, rgba(70,100,140,.18) 0 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(70,100,140,.18) 0 1px, transparent 1px);
+  background-size: 24px 24px;
+  border: 1px solid var(--line);
+  box-shadow: 0 2px 8px rgba(30,40,60,.08);
+}
+.cp-el {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 2px; overflow: hidden; cursor: grab;
+  background: #fdfdfe; border: 1px solid #b6bdc7; border-radius: 5px;
+  font-size: 10px; color: var(--txt); padding: 1px;
+}
+.cp-el:hover { border-color: #8d97a3; }
+.cp-el.sel { outline: 2px solid var(--amber); outline-offset: -2px; }
+.cp-el-label { max-width: 100%; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; font-weight: 600; }
+.cp-el-bind { font-size: 8px; color: var(--dim); max-width: 100%; overflow: hidden; white-space: nowrap; }
+
+/* 底部:名称 + 保存 / 放置 */
+#cpdfoot {
+  padding: 8px; border-top: 1px solid var(--line);
+  display: flex; flex-direction: column; gap: 6px;
+}
+#cpdfoot .crow .tbtn { flex: 1; }
+.tbtn.primary {
+  background: linear-gradient(160deg, #ffd97a, #f0b429); border-color: #d99a12;
+  color: #5c4000; font-weight: 700; white-space: nowrap;
+}
+.tbtn.primary:hover { border-color: #b98a1d; }
 
 /* ---------- 自制组件:模块内容区(复用 cpx 控件外观) ---------- */
 .cpx-modgrid {
