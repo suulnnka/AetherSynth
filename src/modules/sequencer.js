@@ -1,4 +1,4 @@
-/* MIDI 音序器:512 步内置步进存储。
+/* MIDI 音序器:1024 步内置步进存储。
    ---------------------------------------------------------------------
    屏幕即编辑器:点击 / 拖拽直接绘制每步的电压(0~10V,0 = 休止),
    LEN 设定有效步数(1~512,循环播放),门宽可调;步进电压按 1V/oct
@@ -30,8 +30,8 @@ export function rollActiveNote(notes, pos) {
 }
 
 export const seq = {
-  id: 'seq', name: 'MIDI音序器', en: 'MIDI SEQUENCER 512', cat: 'control', w: 20, h: 12,
-  desc: '512 步 MIDI 音序器(64 小节 @ 8 步/小节):在屏幕上点击 / 拖拽绘制每步电压(0~10V,拖到最低 = 休止),LEN 设定有效步数(1~512)循环播放;内置 MIDI→CV 转换同时输出 CV/Gate。CLK 上升沿走一步,RST 高电平回第 1 步。播放中可随时重画。旧 128 步存档自动补齐。',
+  id: 'seq', name: 'MIDI音序器', en: 'MIDI SEQUENCER 1024', cat: 'control', w: 20, h: 12,
+  desc: '1024 步 MIDI 音序器(128 小节 @ 8 步/小节,或 256 小节 @ 16 分音符):在屏幕上点击 / 拖拽绘制每步电压(0~10V,拖到最低 = 休止),LEN 设定有效步数(1~1024)循环播放;内置 MIDI→CV 转换同时输出 CV/Gate。CLK 上升沿走一步,RST 高电平回第 1 步。播放中可随时重画。旧 128/512 步存档自动补齐。',
   ports: [
     { id: 'MIDI', dir: 'out', name: 'MIDI', desc: 'MIDI 音符信号(步进电压按 1V/oct 量化为半音符)' },
     { id: 'CV', dir: 'out', name: 'CV', desc: '当前步电压 0~10V' },
@@ -39,9 +39,9 @@ export const seq = {
     { id: 'CLK', dir: 'in', name: 'CLK', desc: '时钟输入(上升沿走一步,可接 LFO 方波)' },
     { id: 'RST', dir: 'in', name: 'RST', desc: '复位:≥0.5V 时下一步回到第 1 步' }
   ],
-  state: () => ({ steps: new Array(512).fill(null), len: 16, gate: 6 }),
+  state: () => ({ steps: new Array(1024).fill(null), len: 16, gate: 6 }),
   build() {
-    const N = 512;
+    const N = 1024;
     const old = this.state.steps;
     // 旧存档(128 步等)自动补齐到 512;超长截断
     this.steps = (Array.isArray(old) && old.length)
@@ -75,7 +75,7 @@ export const seq = {
     });
     cv.addEventListener('pointermove', e => { if (this._paint) this.paintAt(e); });
     window.addEventListener('pointerup', () => { this._paint = false; });
-    kit.knob(this, { parent: knobRow, key: 'len', label: '长度(步)', min: 1, max: 512, value: this.len, unit: '', int: true });
+    kit.knob(this, { parent: knobRow, key: 'len', label: '长度(步)', min: 1, max: 1024, value: this.len, unit: '', int: true });
     kit.knob(this, { parent: knobRow, key: 'gate', label: '门宽', min: 1, max: 9, value: 6, unit: '' });
   },
   /** 屏幕绘制:把指针位置换算成步序号与电压(中线 = 0V,向上正 / 向下负) */
