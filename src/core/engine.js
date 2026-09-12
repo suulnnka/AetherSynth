@@ -6,7 +6,7 @@ import { serialize, deserialize } from './serialize.js';
 import { startPump } from './loop.js';
 import { updateStatus } from '../ui/statusbar.js';
 import { toast } from '../ui/toast.js';
-import { RATE_KEY } from './save.js';
+import { RATE_KEY, readSaved } from './save.js';
 
 export function currentRate() { return audio.sampleRate; }
 
@@ -27,7 +27,7 @@ export function setSampleRate(rate) {
 }
 
 export function initEngine() {
-  const saved = +(localStorage.getItem(RATE_KEY));
+  const saved = +(readSaved(RATE_KEY));
   if (saved) audio.sampleRate = saved;
   getCtx();
   startPump();

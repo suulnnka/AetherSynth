@@ -35,5 +35,5 @@ createServer(async (req, res) => {
     res.end('Not Found');
   }
 }).listen(PORT, () => {
-  console.log('GridMod → http://127.0.0.1:' + PORT);
+  console.log('AetherSynth → http://127.0.0.1:' + PORT);
 });

@@ -12,7 +12,7 @@ import { mkCustomDef } from '../workshop/custom-def.js';
 import { mkCompositeDef } from './composite.js';
 import { wireComposite } from './composite.js';
 import { designs, refreshMine } from '../workshop/designs.js';
-import { saveNow, LSKEY } from './save.js';
+import { saveNow, LSKEY, readSaved } from './save.js';
 
 export function serialize() {
   return {
@@ -97,7 +97,7 @@ export function deserialize(data) {
 
 export function loadSaved() {
   try {
-    const s = localStorage.getItem(LSKEY);
+    const s = readSaved(LSKEY);
     if (!s) return false;
     deserialize(JSON.parse(s));
     return state.mods.size > 0;

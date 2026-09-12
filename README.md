@@ -1,7 +1,10 @@
-# GridMod · 网格模块减法合成器
+# AetherSynth · 网格模块减法合成器
 
-纯前端 Web Audio 模块化合成器:画布上放置组件(振荡器、滤波器、键盘……),
-用 3.5mm 线缆连接搭棚,还能在「组件工坊」里设计自己的个性化组件。
+纯前端 Web Audio 模块化合成器:像搭真机一样,在网格画布上放置组件(振荡器、
+滤波器、音序器、鼓机、效果器……),用 3.5mm 线缆连接搭棚,弹出自己的声音;
+还能在「组件工坊」里设计个性化组件。
+
+**在线试用:<https://suulnnka.github.io/AetherSynth/>**
 
 ## 运行
 
@@ -11,6 +14,17 @@ npm test         # 运行单元测试(Node 内置 test runner,零依赖)
 ```
 
 > ES Modules 必须通过 http(s) 访问,不能直接双击 index.html(file:// 会被 CORS 拦截)。
+
+## 怎么玩
+
+1. 从左侧组件栏把组件拖进画布(时钟、VCO、VCF、VCA、包络、音序器、鼓机、喇叭……)
+2. 从组件的输出口拖一根线到另一个组件的输入口——接错就拔,点线缆删除
+3. 「歌曲」菜单内置多首示例:三件套流行乐、Minimoog / Model D 音色曲、
+   FM 钟琴、8-bit 长曲「像素远征」,以及把 NES 音源 NSF 文件离线转谱还原的
+   「NSF 转谱 · 四轨全曲」(4 轨 × 16 小节钢琴卷帘 × 4 乐段,段选器自动轮换)
+4. 右键组件的接口 / 控件可「发送到工坊」,把它变成自制组件的素材
+   (自制组件右键可重新编辑);Del 删除,Ctrl+D 复制,Shift 多选后可「封装为组合」
+5. 画布自动存档(localStorage),菜单可导出 / 导入 JSON
 
 ## 目录结构
 
@@ -44,7 +58,7 @@ npm test         # 运行单元测试(Node 内置 test runner,零依赖)
 │   ├── modules/          内置组件定义,按类别一文件:
 │   │   ├── controls.js   旋钮 / 推子 / 触控板 / 开关 …
 │   │   ├── keyboard.js   MIDI 键盘
-│   │   ├── sequencer.js  MIDI 音序器
+│   │   ├── sequencer.js  MIDI 音序器(1024 步)+ 钢琴卷帘(C2~C6,1~16 小节)
 │   │   ├── sources.js    VCO / FM / LFO(SYNC 相位硬同步、空占比)/ 噪声 / 麦克风
 │   │   ├── clock.js      时钟(BPM / 空占比 / RST 复位)
 │   │   ├── drums.js      底鼓 / 军鼓 / 踩镲
