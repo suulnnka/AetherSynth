@@ -26,7 +26,7 @@ test('customLayout:控件 → 端口的类型映射(旋钮/推子=CV,开关=Gate
   assert.equal(L.ins.length, 1);
 });
 
-test('customLayout:尺寸 = 内容网格 + 外壳泳道 + 内边距', () => {
+test('customLayout:尺寸 = 整格内容网格 + 整格外壳泳道', () => {
   const L = customLayout({
     cols: 3, span: 3,
     cells: [
@@ -34,11 +34,13 @@ test('customLayout:尺寸 = 内容网格 + 外壳泳道 + 内边距', () => {
       { id: 'd', kind: 'fader' }
     ]
   });
-  // 4 个控件 3 列 → 2 行;宽 = 3列×3跨 + 1 格内边距
+  // 4 个控件 3 列 → 2 行;宽 = 控制格 3×3 + 两侧各 1 格空白 = 11
   assert.equal(L.rows, 2);
-  assert.equal(L.w, 10);
-  // 高 = 标题 0.9 + 输出泳道 2 + 2行×3 + 0.2 余量 + 输入泳道 2(有电压表才…此设计无电压表 → pad 0.3)
-  assert.equal(L.h, Math.round((0.9 + 2 + 6 + 0.2 + 0.3) * 100) / 100);
+  assert.equal(L.w, 11);
+  // 高 = 标题 1 + 输出泳道 2 + 2行×3 + 底部 1(无电压表,无输入泳道)
+  assert.equal(L.h, 3 + 6 + 1);
+  // 内容区左右边距为整格 → 控制格与画布网格严格对齐
+  assert.equal((L.w - L.cols * L.span) % 2, 0);
 });
 
 test('customLayout:端口数撑大模块宽度(接口 2 格间距)', () => {

@@ -11,15 +11,17 @@ import { SINK_DEFS } from '../core/flow.js';
 import { saveSoon } from '../core/save.js';
 import { CompactPanel, mkCell } from './panel.js';
 
-/** 纯计算:设计的端口 / 尺寸。返回 { outs, ins, ports, cols, span, rows, w, h } */
+/** 纯计算:设计的端口 / 尺寸(全部整格,与画布网格严格对齐)。
+    返回 { outs, ins, ports, cols, span, rows, top, bot, margin, w, h } */
 export function customLayout(spec) {
   const cells = (spec.cells || []).map(c => ({ ...c }));
   const outs = cells.filter(c => c.kind !== 'meter');
   const ins = cells.filter(c => c.kind === 'meter');
   const cols = clamp(spec.cols || 3, 1, 6), span = clamp(spec.span || 3, 2, 5);
   const rows = Math.max(1, Math.ceil(cells.length / cols));
-  const top = 0.9 + (outs.length ? 2.0 : 0.3);   // SHELL.headerC + (laneC | padC)
-  const bot = ins.length ? 2.0 : 0.3;
+  // 整格外壳:标题行 1 格;有输出泳道 2 格(否则留 1 格);有输入泳道 2 格(否则 1 格)
+  const top = 1 + (outs.length ? 2 : 1);
+  const bot = ins.length ? 2 : 1;
   const ports = outs.map(c => ({
     id: 'P' + c.id, dir: 'out', name: c.label || 'OUT',
     type: c.kind === 'switch' ? 'gate' : 'cv',
@@ -30,11 +32,13 @@ export function customLayout(spec) {
     id: 'P' + c.id, dir: 'in', name: c.label || 'IN', type: 'any',
     desc: '电压表输入:接进来的信号电压显示在表上'
   })));
+  // 控制格两侧各留 m 整格空白,同时保证接口(2 格间距)放得下
+  const need = Math.max(outs.length * 2, ins.length * 2, 2);
+  const margin = Math.max(1, Math.ceil((need - cols * span) / 2));
   return {
-    cells, outs, ins, ports, cols, span, rows, top, bot,
-    // +1 / +0.2:内容区四边 0.35 格内边距 + 网格 gap 的余量
-    w: Math.max(cols * span + 1, outs.length * 2 || 2, ins.length * 2 || 2),
-    h: Math.round((top + rows * span + 0.2 + bot) * 100) / 100
+    cells, outs, ins, ports, cols, span, rows, top, bot, margin,
+    w: cols * span + 2 * margin,
+    h: top + rows * span + bot
   };
 }
 
@@ -51,8 +55,10 @@ export function mkCustomDef(key, spec) {
   const def = {
     id: key, name: spec.name || '自制组件', en: 'CUSTOM', cat: 'control',
     w: layout.w, h: layout.h,
-    ports: layout.ports, custom: true, design: { ...spec, cells: layout.cells, cols: layout.cols, span: layout.span },
+    ports: layout.ports, custom: true, design: { ...spec, cells: layout.cells, cols: layout.cols, span: layout.span, margin: layout.margin },
     desc: '自制组件:控件即接口,右键 = 载回工坊修改。',
+    // 整格外壳:标题行 1 格 + 泳道整格,让内容区与画布网格严格对齐
+    headerC: 1, laneTopC: layout.outs.length ? 2 : 1, laneBotC: layout.ins.length ? 2 : 1, footerC: layout.ins.length ? 2 : 1,
     state: () => ({ vals: {} }),
     build() {
       this._cells = {}; this._meters = [];
@@ -101,7 +107,8 @@ export function mkCustomDef(key, spec) {
   return def;
 }
 
-/** 自制组件实例的面板:按设计规格把控制格铺进内容区(控件即接口,不可增删) */
+/** 自制组件实例的面板:按设计规格把控制格铺进内容区(控件即接口,不可增删)。
+    内容网格与画布网格严格对齐:外壳左右各留 margin 整格,格子间无缝。 */
 function uiCustomPanel(mod) {
   const design = mod.def.design;
   CompactPanel.applyTheme(mod.el, design.theme);
@@ -109,6 +116,7 @@ function uiCustomPanel(mod) {
   grid.className = 'cpx-modgrid';
   grid.style.gridTemplateColumns = `repeat(${design.cols}, ${design.span * BASE}px)`;
   grid.style.gridAutoRows = (design.span * BASE) + 'px';
+  grid.style.margin = `0 ${(design.margin ?? 1) * BASE}px`;
   for (const c of design.cells) {
     const { el: cellEl, handle } = mkCell(c,
       { change: v => mod.setCellVal(c.id, v) }, { removable: false, box: design.span * BASE });

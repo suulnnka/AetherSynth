@@ -35,10 +35,12 @@ export class Mod {
     root.style.height = (def.h * state.cellPx) + 'px';
 
     // 外壳排版:标题行 + 上下泳道,余下给内容区
+    // (def 可用 headerC / laneTopC / laneBotC / footerC 覆写为整格,
+    //  自制组件借此让内容区与画布网格严格对齐)
     const hasOut = def.ports.some(p => p.dir === 'out');
     const hasIn = def.ports.some(p => p.dir === 'in');
-    this._top = SHELL.headerC + (hasOut ? SHELL.laneC : SHELL.padC);
-    this._bot = hasIn ? SHELL.laneC : SHELL.padC;
+    this._top = (def.headerC ?? SHELL.headerC) + (hasOut ? (def.laneTopC ?? SHELL.laneC) : SHELL.padC);
+    this._bot = hasIn ? (def.laneBotC ?? SHELL.laneC) : (def.footerC ?? SHELL.padC);
 
     const head = el('div', 'mhead', root);
     const nm = el('div', 'mname', head);
@@ -54,9 +56,11 @@ export class Mod {
     const bodyHost = el('div', 'mbody', root);
     bodyHost.style.top = `calc(var(--cellpx) * ${this._top})`;
     bodyHost.style.bottom = `calc(var(--cellpx) * ${this._bot})`;
+    // 内容区 = 整格网格:横向 def.w 列(与画布网格列 1:1 对齐)
     const scale = el('div', 'mscale', bodyHost);
-    scale.style.width = ((def.w - 0.7) * BASE) + 'px';
+    scale.style.width = (def.w * BASE) + 'px';
     scale.style.height = ((def.h - this._top - this._bot) * BASE) + 'px';
+    scale.style.gridTemplateColumns = `repeat(${def.w}, ${BASE}px)`;
     this.body = scale;
 
     for (const p of def.ports) this[p.dir === 'out' ? 'outs' : 'ins'][p.id] = ctx.createGain();

@@ -44,8 +44,7 @@
 
 /* ---------- 自制组件:模块内容区(复用 cpx 控件外观) ---------- */
 .cpx-modgrid {
-  height: 100%; display: grid; gap: calc(4px * var(--k, 1)); align-content: center;
-  justify-content: center;
+  height: 100%; display: grid; align-content: start; justify-content: start;
 }
 .cpx-modgrid .cpx-cell { cursor: default; }
 .pgroup.g-mine { color: var(--amber); }
