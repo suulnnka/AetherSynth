@@ -1,0 +1,11 @@
+{
+  "name": "gridmod",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "GridMod · 网格模块减法合成器 —— 纯前端 Web Audio 模块化合成器",
+  "scripts": {
+    "start": "node scripts/serve.js",
+    "test": "node --test \"tests/*.test.js\""
+  }
+}

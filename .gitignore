@@ -1,0 +1,14 @@
+# Node
+node_modules/
+npm-debug.log*
+
+# 系统 / 编辑器
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+
+# 本地临时文件
+*.log
+/tmp/
