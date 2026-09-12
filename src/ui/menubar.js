@@ -15,6 +15,7 @@ import { saveSoon } from '../core/save.js';
 import { demoPatch } from '../songs/demo.js';
 import { MOOG_PIECES } from '../songs/minimoog-songs.js';
 import { MODEL_DEMO } from '../songs/model-d.js';
+import { FM_DEMO } from '../songs/fm.js';
 import { SONGS } from '../songs/data.js';
 import { loadSong } from '../songs/player.js';
 import { toggleStudio, isStudioVisible } from '../workshop/studio.js';
@@ -109,7 +110,8 @@ const MENUS = [
       label: p.label,
       action: () => { firstGesture(); p.build(); }
     })),
-    { label: MODEL_DEMO.name, action: () => { firstGesture(); MODEL_DEMO.build(); } }
+    { label: MODEL_DEMO.name, action: () => { firstGesture(); MODEL_DEMO.build(); } },
+    { label: FM_DEMO.name, action: () => { firstGesture(); FM_DEMO.build(); } }
   ]},
   { label: '帮助', items: [
     { label: '使用帮助', action: () => openHelp() }
