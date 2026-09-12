@@ -1,7 +1,7 @@
-/* MIDI 音序器:128 步内置步进存储。
+/* MIDI 音序器:512 步内置步进存储。
    ---------------------------------------------------------------------
    屏幕即编辑器:点击 / 拖拽直接绘制每步的电压(0~10V,0 = 休止),
-   LEN 设定有效步数(1~128,循环播放),门宽可调;步进电压按 1V/oct
+   LEN 设定有效步数(1~512,循环播放),门宽可调;步进电压按 1V/oct
    量化为 MIDI 音符从 MIDI 口发出,内置 MIDI→CV 同时输出 CV / Gate。
    CLK 上升沿走一步,RST 高电平回第 1 步。
    播放中可以随时重画,实时改变旋律。 */
@@ -30,8 +30,8 @@ export function rollActiveNote(notes, pos) {
 }
 
 export const seq = {
-  id: 'seq', name: 'MIDI音序器', en: 'MIDI SEQUENCER 128', cat: 'control', w: 20, h: 12,
-  desc: '128 步 MIDI 音序器:在屏幕上点击 / 拖拽绘制每步电压(0~10V,拖到最低 = 休止),LEN 设定有效步数(1~128)循环播放;内置 MIDI→CV 转换同时输出 CV/Gate。CLK 上升沿走一步,RST 高电平回第 1 步。播放中可随时重画。',
+  id: 'seq', name: 'MIDI音序器', en: 'MIDI SEQUENCER 512', cat: 'control', w: 20, h: 12,
+  desc: '512 步 MIDI 音序器(64 小节 @ 8 步/小节):在屏幕上点击 / 拖拽绘制每步电压(0~10V,拖到最低 = 休止),LEN 设定有效步数(1~512)循环播放;内置 MIDI→CV 转换同时输出 CV/Gate。CLK 上升沿走一步,RST 高电平回第 1 步。播放中可随时重画。旧 128 步存档自动补齐。',
   ports: [
     { id: 'MIDI', dir: 'out', name: 'MIDI', desc: 'MIDI 音符信号(步进电压按 1V/oct 量化为半音符)' },
     { id: 'CV', dir: 'out', name: 'CV', desc: '当前步电压 0~10V' },
@@ -39,12 +39,15 @@ export const seq = {
     { id: 'CLK', dir: 'in', name: 'CLK', desc: '时钟输入(上升沿走一步,可接 LFO 方波)' },
     { id: 'RST', dir: 'in', name: 'RST', desc: '复位:≥0.5V 时下一步回到第 1 步' }
   ],
-  state: () => ({ steps: new Array(128).fill(null), len: 16, gate: 6 }),
+  state: () => ({ steps: new Array(512).fill(null), len: 16, gate: 6 }),
   build() {
-    this.steps = (this.state.steps && this.state.steps.length === 128)
-      ? this.state.steps
-      : new Array(128).fill(null);
-    this.len = clamp(Math.round(this.state.len ?? 16), 1, 128);
+    const N = 512;
+    const old = this.state.steps;
+    // 旧存档(128 步等)自动补齐到 512;超长截断
+    this.steps = (Array.isArray(old) && old.length)
+      ? old.slice(0, N).concat(new Array(Math.max(0, N - old.length)).fill(null))
+      : new Array(N).fill(null);
+    this.len = clamp(Math.round(this.state.len ?? 16), 1, N);
     this.cCv = ctx.createConstantSource(); this.cGt = ctx.createConstantSource();
     this.cCv.offset.value = 0; this.cGt.offset.value = 0;
     this.cCv.connect(this.outs.CV); this.cGt.connect(this.outs.GATE);
@@ -72,7 +75,7 @@ export const seq = {
     });
     cv.addEventListener('pointermove', e => { if (this._paint) this.paintAt(e); });
     window.addEventListener('pointerup', () => { this._paint = false; });
-    kit.knob(this, { parent: knobRow, key: 'len', label: '长度(步)', min: 1, max: 128, value: this.len, unit: '', int: true });
+    kit.knob(this, { parent: knobRow, key: 'len', label: '长度(步)', min: 1, max: 512, value: this.len, unit: '', int: true });
     kit.knob(this, { parent: knobRow, key: 'gate', label: '门宽', min: 1, max: 9, value: 6, unit: '' });
   },
   /** 屏幕绘制:把指针位置换算成步序号与电压(中线 = 0V,向上正 / 向下负) */
