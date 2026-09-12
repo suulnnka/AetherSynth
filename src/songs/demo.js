@@ -10,6 +10,7 @@ import { DEFS } from '../core/registry.js';
 import { mkCustomDef } from '../workshop/custom-def.js';
 import { registerDesign } from '../workshop/designs.js';
 import { toast } from '../ui/toast.js';
+import { t } from '../core/i18n.js';
 
 const DEMO_SPEC = {
   name: '颤音台', seq: 2, cols: 2, span: 3,
@@ -53,5 +54,5 @@ export function demoPatch() {
   addCable(vco.id, 'SIN', xy.id, 'X');
   addCable(vco.id, 'TRI', xy.id, 'Y');
   fitView();
-  toast('演示音色:点电源,按 A W S E D… 演奏');
+  toast(t('演示音色:点电源,按 A W S E D… 演奏', 'Demo patch: switch the power on and play with A W S E D…'));
 }

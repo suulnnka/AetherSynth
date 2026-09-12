@@ -113,6 +113,40 @@
         <li>支持 Web MIDI:插入 MIDI 键盘后,「键盘」组件自动接收(浏览器询问权限时允许即可)。</li>
       </ul>
     </div>
+    <div id="helpcontent-en" class="mbody2" hidden style="display:none">
+      <h3>Design rules</h3>
+      <ul>
+        <li>No module (<b>oscillator, filter, keyboard, speaker…</b>) has any switch, knob or button on its body.</li>
+        <li>Want to tweak a parameter? <b>Knobs and switches are modules too</b> — patch their output into the target module&#39;s 3.5mm jacks.</li>
+        <li>The canvas is strictly grid-based: <b>module sizes and jack positions are measured in grid cells</b> (grid density is adjustable in the menu bar: 16 / 20 / 24 / 32px).</li>
+        <li>One cable = one 3.5mm wire; all signals (CV / Gate / audio) run down the same kind of wire.</li>
+        <li>Following the Reaktor Blocks / VCV Rack convention, <b>jacks and cables are colored by signal type</b>: <span style="color:#c94f4f">&#9679; red = audio</span>, <span style="color:#3a76d0">&#9679; blue = CV</span>, <span style="color:#2f9e63">&#9679; green = gate / clock</span>, <span style="color:#7d8a96">&#9679; gray = any signal</span>, <span style="color:#a94fd0">&#9679; purple = MIDI</span> (3.5mm TRS-MIDI convention).</li>
+        <li><b>Composites and nesting</b>: Shift+click several modules &#8594; &#8220;Encapsulate&#8221;; boundary cables automatically become new 3.5mm jacks on the composite panel. Composites can be encapsulated again (unlimited nesting); right-click a composite to dissolve it.</li>
+        <li><b>Component workshop</b>: open &#8220;Workshop&#8221; from the menu bar and build your own panel with &#8220;+ Knob / + Fader / + Switch / + Meter&#8221; — rename them, set ranges, pick colors, then &#8220;Place&#8221; and it becomes a real module on the canvas: each knob / fader / switch is one 3.5mm output, the meter is one input. Designs are saved under &#8220;MINE&#8221; for reuse; right-click a custom module on the canvas to load it back into the workshop.</li>
+        <li>Only modules that can ultimately feed a <b>speaker</b> (or scope / XY scope / recorder) are simulated; everything else automatically <b>sleeps and dims</b>. Connectivity follows the internal signal path (e.g. a knob chain feeding CUTOFF counts as asleep while the filter&#39;s IN is unpatched).</li>
+        <li><b>MIDI keyboard / MIDI sequencer</b> are MIDI devices: the MIDI port emits notes and has a <b>built-in MIDI&#8594;CV conversion</b> that outputs CV directly; you can also patch MIDI into the standalone &#8220;MIDI-CV&#8221; module.</li>
+      </ul>
+      <h3>Quick start (subtractive synthesis)</h3>
+      <ol>
+        <li>Load &#8220;Demo patch&#8221; from the Songs menu: <b>keyboard &#8594; oscillator &#8594; filter &#8594; VCA &#8594; speaker</b>, with an ADSR controlling volume and knobs controlling the filter.</li>
+        <li>Switch the power on and play with your computer keyboard <b>A W S E D F T G Y H U J K…</b> (or click the piano keys). Z / X shift the keyboard octave.</li>
+        <li>Vibrato: place an LFO and patch any of its waveform outputs into the oscillator&#39;s <b>FM</b> jack.</li>
+        <li>Sequencing: clock the sequencer&#39;s CLK from an LFO square output, give V1~V8 a knob each to set the step voltages, then CV &#8594; quantizer &#8594; oscillator pitch.</li>
+        <li>Recorder: signal into IN, a &#8220;switch&#8221; into REC to record, PLAY to play back, LOOP high to loop.</li>
+        <li>Want a personal control surface? Open the &#8220;Workshop&#8221; and assemble a custom module — knobs / faders / switches in place, place it and patch away; designs live under &#8220;MINE&#8221; for repeated use.</li>
+      </ol>
+      <h3>Voltage conventions</h3>
+      <ul>
+        <li>Knobs output <b>0 ~ +10V</b>; pitch is <b>1V/oct</b> (oscillator 0V = C4); LFO &#177;1V; gate high = 10V.</li>
+        <li>Unwired inputs use defaults (a little filter resonance, VCA fully open with no control, etc.).</li>
+      </ul>
+      <h3>Shortcuts</h3>
+      <ul>
+        <li>Drag from a jack = patch; drag from an <b>already-patched</b> jack = unplug that cable and move it; double-click a jack = unplug everything from it; click a cable = delete it.</li>
+        <li>Drag a module header to move it (snaps to the grid); drag empty space to pan; wheel to zoom; Del deletes the selection; Ctrl+D duplicates.</li>
+        <li>Web MIDI supported: plug in a MIDI keyboard and the &#8220;MIDI keyboard&#8221; module receives it automatically (allow the browser permission prompt).</li>
+      </ul>
+    </div>
 <input type="file" id="filein" accept=".json,application/json" hidden>
 
 <script type="module" src="src/main.js"></script>

@@ -16,6 +16,7 @@ import { addCable } from '../core/cables.js';
 import { clearAll } from '../core/serialize.js';
 import { fitView } from '../core/view.js';
 import { toast } from '../ui/toast.js';
+import { t } from '../core/i18n.js';
 import { phrase } from './minimoog-songs.js';
 
 /* C 小调上行句:C Eb G Bb C Bb G Eb(每步 = 16 分音符) */
@@ -115,5 +116,5 @@ export function buildModelD() {
   addCable(vca.id, 'OUT', spk.id, 'R');
 
   fitView();
-  toast('穆格拆解:三 VCO → 混音(含噪声)→ 滤波(CONTOUR 包络)→ VCA → 喇叭,音序器自动循环演奏');
+  toast(t('穆格拆解:三 VCO → 混音(含噪声)→ 滤波(CONTOUR 包络)→ VCA → 喇叭,音序器自动循环演奏', 'Moog teardown: three VCOs → mixer (noise included) → filter (CONTOUR envelope) → VCA → speaker, sequenced on a loop'));
 }

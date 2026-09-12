@@ -5,6 +5,7 @@
    · 宏组件实例:不可发送(禁止递归) */
 
 import { state } from '../core/state.js';
+import { t } from '../core/i18n.js';
 import { firstGesture } from '../core/audio.js';
 import { viewport } from '../core/view.js';
 import { showMenu } from '../ui/contextmenu.js';
@@ -26,10 +27,10 @@ export function initContextMenu() {
       const port = m.def.portsById[j.dataset.port];
       const items = [];
       if (port.dir === 'in') {
-        items.push({ label: '发送到工坊:旋钮(注入 ' + port.name + ')', action: () => sendPortToWorkshop(m, port, 'knob') });
-        items.push({ label: '发送到工坊:电压表', action: () => sendPortToWorkshop(m, port, 'meter') });
+        items.push({ label: t('发送到工坊:旋钮(注入 ', 'Send to workshop: knob (inject ') + port.name + ')', action: () => sendPortToWorkshop(m, port, 'knob') });
+        items.push({ label: t('发送到工坊:电压表', 'Send to workshop: meter'), action: () => sendPortToWorkshop(m, port, 'meter') });
       } else {
-        items.push({ label: '发送到工坊:电压表(监视 ' + port.name + ')', action: () => sendPortToWorkshop(m, port, 'meter') });
+        items.push({ label: t('发送到工坊:电压表(监视 ', 'Send to workshop: meter (watch ') + port.name + ')', action: () => sendPortToWorkshop(m, port, 'meter') });
       }
       showMenu(e.clientX, e.clientY, items);
       return;
@@ -42,18 +43,18 @@ export function initContextMenu() {
 
     const items = [];
     if (m.def.composite) {
-      items.push({ label: '解体组合', action: () => dissolveComposite(m) });
+      items.push({ label: t('解体组合', 'Dissolve composite'), action: () => dissolveComposite(m) });
       showMenu(e.clientX, e.clientY, items);
       return;
     }
     if (m.def.macro) {
-      items.push({ label: '宏组件实例(不可再嵌套,禁止递归)', action: null });
+      items.push({ label: t('宏组件实例(不可再嵌套,禁止递归)', 'Macro instance (no further nesting, recursion disabled)'), action: null });
       showMenu(e.clientX, e.clientY, items);
       return;
     }
     // 控制类组件:镜像发送
     if (CTRL_KINDS.includes(m.def.id)) {
-      items.push({ label: '发送到工坊:镜像控制', action: () => sendControlToWorkshop(m) });
+      items.push({ label: t('发送到工坊:镜像控制', 'Send to workshop: mirror control'), action: () => sendControlToWorkshop(m) });
       showMenu(e.clientX, e.clientY, items);
     }
   });

@@ -10,8 +10,10 @@ import { viewport } from '../core/view.js';
 import { firstGesture } from '../core/audio.js';
 import { saveSoon } from '../core/save.js';
 import { toast } from '../ui/toast.js';
+import { t, isZh, defName, defDesc } from '../core/i18n.js';
 
-const GROUPS = [['control', '控制 CONTROL'], ['source', '信号源 SOURCE'], ['process', '处理 PROCESS'], ['logic', '逻辑 LOGIC'], ['output', '输出 OUTPUT']];
+const GROUPS = [['control', t('控制 CONTROL', 'CONTROL')], ['source', t('信号源 SOURCE', 'SOURCE')],
+  ['process', t('处理 PROCESS', 'PROCESS')], ['logic', t('逻辑 LOGIC', 'LOGIC')], ['output', t('输出 OUTPUT', 'OUTPUT')]];
 
 export function buildPalette() {
   const pal = $('#palette');
@@ -22,8 +24,9 @@ export function buildPalette() {
       const d = DEFS[tid];
       if (d.cat !== g) continue;
       const it = el('div', 'pitem g-' + g, pal);
-      it.innerHTML = `<span>${d.name} <small style="opacity:.55">${d.en}</small></span><span class="psz">${d.w}×${d.h} 格</span>`;
-      it.title = d.desc;
+      const nm = defName(d);
+      it.innerHTML = `<span>${nm}${isZh() ? ` <small style="opacity:.55">${d.en}</small>` : ''}</span><span class="psz">${d.w}×${d.h} ${t('格', 'cells')}</span>`;
+      it.title = defDesc(d);
       it.addEventListener('click', () => {
         firstGesture();
         const r = viewport.getBoundingClientRect();
@@ -33,7 +36,7 @@ export function buildPalette() {
         state.spawnN++;
         const m = createModule(tid, cx, cy);
         selMod(m.id);
-        toast('已添加:' + d.name + ' — 接口悬停可看说明');
+        toast(t('已添加:', 'Added: ') + nm + t(' — 接口悬停可看说明', ' — hover the jacks for port info'));
         saveSoon();
       });
     }

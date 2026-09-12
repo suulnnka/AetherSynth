@@ -3,6 +3,7 @@
    定义提供的 build(音频节点)/ ui(内容区 DOM)/ tick / dispose。 */
 
 import { el } from './utils.js';
+import { t, isZh } from './i18n.js';
 import { state, nextId } from './state.js';
 import { getCtx, Mon } from './audio.js';
 import { DEFS } from './registry.js';
@@ -44,10 +45,10 @@ export class Mod {
 
     const head = el('div', 'mhead', root);
     const nm = el('div', 'mname', head);
-    nm.textContent = def.name;
-    el('small', '', nm).textContent = def.en;
+    nm.textContent = isZh() ? def.name : (def.en || def.name);
+    el('small', '', nm).textContent = isZh() ? def.en : '';
     const mx = el('div', 'mx', head);
-    mx.textContent = '✕'; mx.title = '删除组件';
+    mx.textContent = '✕'; mx.title = t('删除组件', 'Delete module');
     mx.addEventListener('pointerdown', e => e.stopPropagation());
     mx.addEventListener('click', e => { e.stopPropagation(); deleteModWithConfirm(this.id); });
     // Eurorack 面板螺丝
@@ -234,7 +235,7 @@ export async function deleteModWithConfirm(id) {
   if (!m) return;
   if (m.def.composite && m.childIds && m.childIds.length) {
     const ok = await confirmDialog({
-      title: '删除组合模块',
+      title: t('删除组合模块', 'Dissolve composite module'),
       message: `会连同内部的 ${m.childIds.length} 个组件一起删除,确定?`,
       okLabel: '删除', danger: true
     });

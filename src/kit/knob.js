@@ -2,6 +2,7 @@
    note 模式按半音音名显示。写 mod.state.v 并驱动 mod.cs 恒压源。 */
 
 import { el, clamp } from '../core/utils.js';
+import { tr } from '../core/i18n.js';
 import { getCtx } from '../core/audio.js';
 import { saveSoon } from '../core/save.js';
 
@@ -31,7 +32,7 @@ export function knob(mod, o = {}) {
   };
   const wrap = el('div', 'knobwrap', o.parent || mod.body);
   wrap.dataset.ctl = '1';
-  if (o.label) el('div', 'klabel', wrap).textContent = o.label;
+  if (o.label) el('div', 'klabel', wrap).textContent = tr(o.label);
   const k = el('div', 'knob', wrap);
   if (steps) {   // 段位刻度点(反转抵消旋钮旋转,保持固定)
     const ring = el('div', 'kticks', k);

@@ -26,6 +26,8 @@ import { initKeyboard } from './interactions/keys.js';
 import { initContextMenu } from './interactions/context.js';
 import { initMenuBar } from './ui/menubar.js';
 import { initHelp } from './ui/help.js';
+import { applyStudioLang } from './workshop/studio.js';
+import { t } from './core/i18n.js';
 import { demoPatch } from './songs/demo.js';
 import { updateStatus, startStatusLoop } from './ui/statusbar.js';
 import { startRafLoop } from './core/loop.js';
@@ -53,11 +55,17 @@ function boot() {
   initKeyboard();
   initContextMenu();
   initMenuBar();
+  applyStudioLang();
   initHelp();
 
   worldEl.style.setProperty('--cellpx', state.cellPx + 'px');
   worldEl.style.setProperty('--k', 1);
   document.addEventListener('pointerdown', firstGesture, { capture: true });
+  document.title = t('AetherSynth · 网格模块减法合成器', 'AetherSynth · Grid modular subtractive synthesizer');
+  const hint = document.getElementById('sthint');
+  if (hint) hint.textContent = t(
+    '拖接口→接口 = 接线 · 从已接线的口拖出 = 拔线 · 点线缆 = 删除 · 工坊 = 设计自制组件 · 右键自制组件 = 重新编辑 · 拖空白 = 平移 · 滚轮 = 缩放 · Del = 删除组件 · Ctrl+D = 复制',
+    'drag jack → jack = patch · drag from a patched jack = unplug · click a cable = delete · workshop = design custom modules · right-click a custom module = re-edit · drag empty space = pan · wheel = zoom · Del = delete · Ctrl+D = duplicate');
   window.addEventListener('beforeunload', () => {
     try { localStorage.setItem(LSKEY, JSON.stringify(serialize())); } catch (e) {}
   });

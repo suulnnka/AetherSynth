@@ -16,6 +16,7 @@ import { addCable } from '../core/cables.js';
 import { clearAll } from '../core/serialize.js';
 import { fitView } from '../core/view.js';
 import { toast } from '../ui/toast.js';
+import { t } from '../core/i18n.js';
 import { phrase } from './minimoog-songs.js';
 
 /* 五声音阶钟琴句(C 大调五声:C D E G A,跨两个八度) */
@@ -91,5 +92,5 @@ export function buildFmBell() {
   addCable(dly.id, 'OUT', spk.id, 'R');
 
   fitView();
-  toast('FM 示例:调制器不发声、只改音色 —— 拧 RATIO 听谐和↔金属,拧 INDEX 听亮度,亮度包络做出钟琴的「叮」感');
+  toast(t('FM 示例:调制器不发声、只改音色 —— 拧 RATIO 听谐和↔金属,拧 INDEX 听亮度,亮度包络做出钟琴的「叮」感', 'FM demo: the modulator makes no sound of its own — turn RATIO for harmonic vs metallic, INDEX for brightness; a brightness envelope gives the bell-like ping'));
 }

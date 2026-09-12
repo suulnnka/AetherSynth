@@ -9,6 +9,7 @@ import { clearAll } from '../core/serialize.js';
 import { fitView } from '../core/view.js';
 import { SONGS } from './data.js';
 import { toast } from '../ui/toast.js';
+import { t } from '../core/i18n.js';
 
 const BARS = 16;
 
@@ -109,7 +110,7 @@ export function loadSong(id) {
   if (!song) return;
   buildSongPatch(song);
   fitView();
-  toast('▶ ' + song.name + ' — ' + song.bpm + ' BPM(128 步 / 16 小节)');
+  toast('▶ ' + song.name + ' — ' + song.bpm + ' BPM' + t('(128 步 / 16 小节)', ' (128 steps / 16 bars)'));
 }
 
 /** 菜单「歌曲」的菜单项(由菜单栏调用) */

@@ -9,12 +9,12 @@
 
    用法:
      const win = new AppWindow({
-       title: '标题', content: Element|string, width: 420,
+       title: t('标题', 'Title'), content: Element|string, width: 420,
        modal: true,          // 带遮罩
        dismissable: true,    // 点击遮罩关闭
        actions: [            // 底部按钮(可省)
-         { label: '取消', onClick: () => win.close() },
-         { label: '确定', primary: true, onClick: () => win.close() }
+         { label: t('取消', 'Cancel'), onClick: () => win.close() },
+         { label: t('确定', 'OK'), primary: true, onClick: () => win.close() }
        ],
        onClose: () => {}     // 窗口关闭回调
      });
@@ -22,6 +22,7 @@
    ===================================================================== */
 
 import { el } from '../core/utils.js';
+import { t } from '../core/i18n.js';
 
 /** 打开中的窗口栈(栈顶 = 最上层);z 值从 121 起递增
     (tooltip 100、toast 500,toast 永远在窗口之上) */
@@ -65,7 +66,7 @@ export class AppWindow {
     this._titleEl = el('span', 'gw-title', bar);
     this._titleEl.textContent = o.title;
     const x = el('button', 'tbtn gw-x', bar);
-    x.textContent = '✕'; x.title = '关闭';
+    x.textContent = '✕'; x.title = t('关闭', 'Close');
     x.addEventListener('click', e => { e.stopPropagation(); this.close(); });
 
     const body = this._body = el('div', 'gw-body', root);
@@ -154,7 +155,7 @@ const clampPx = (v, max) => Math.max(8 - 60, Math.min(v, max - 8));
 /* ---------------- Promise 化对话框 ---------------- */
 
 /** 确认框:resolve(true = 确定 / false = 取消或关闭) */
-export function confirmDialog({ title = '确认', message = '', okLabel = '确定', cancelLabel = '取消', danger = false } = {}) {
+export function confirmDialog({ title = t('确认', 'Confirm'), message = '', okLabel = t('确定', 'OK'), cancelLabel = t('取消', 'Cancel'), danger = false } = {}) {
   return new Promise(resolve => {
     const msg = el('div', 'gw-message');
     msg.textContent = message;
@@ -172,7 +173,7 @@ export function confirmDialog({ title = '确认', message = '', okLabel = '确�
 }
 
 /** 警告框:关闭后 resolve */
-export function alertDialog({ title = '提示', message = '', okLabel = '确定' } = {}) {
+export function alertDialog({ title = t('提示', 'Notice'), message = '', okLabel = t('确定', 'OK') } = {}) {
   return new Promise(resolve => {
     const msg = el('div', 'gw-message');
     msg.textContent = message;

@@ -17,6 +17,7 @@ import { addCable } from '../core/cables.js';
 import { clearAll } from '../core/serialize.js';
 import { fitView } from '../core/view.js';
 import { toast } from '../ui/toast.js';
+import { t } from '../core/i18n.js';
 
 const N = 512, SPB = 8;
 
@@ -167,5 +168,5 @@ export function buildChipQuest() {
   addCable(mixI.id, 'OUT', scope.id, 'IN');
 
   fitView();
-  toast('像素远征:原创 8-bit 长曲,五条 512 步音序器(主音/贝斯/鼓×3)自动循环 64 小节');
+  toast(t('像素远征:原创 8-bit 长曲,五条 512 步音序器(主音/贝斯/鼓×3)自动循环 64 小节', 'Pixel Expedition: original 8-bit long form — five 512-step sequencers (lead / bass / drums ×3) loop 64 bars'));
 }

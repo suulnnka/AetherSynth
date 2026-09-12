@@ -12,6 +12,7 @@
      一路 3.5mm 接口,绑定元素直接操控 / 监视画布上的源端口。 */
 
 import { $, clamp } from '../core/utils.js';
+import { t } from '../core/i18n.js';
 import { state } from '../core/state.js';
 import { firstGesture } from '../core/audio.js';
 import { saveSoon } from '../core/save.js';
@@ -22,6 +23,51 @@ import { toast } from '../ui/toast.js';
 
 const ECS = 24;                       // 编辑器每格像素
 const layout = { name: '我的面板', cols: 8, rows: 6, cells: [] };
+
+/* 面板静态文案:按当前语言改写 index.html 里的工坊面板文字 */
+export function applyStudioLang() {
+  const add = { knob: ['＋旋钮', '+ Knob', t('添加旋钮元素(放置后 = 一路 CV 输出口)', 'Add a knob element (placed = one CV output)')],
+    fader: ['＋推子', '+ Fader', t('添加推子元素(放置后 = 一路 CV 输出口)', 'Add a fader element (placed = one CV output)')],
+    switch: ['＋开关', '+ Switch', t('添加开关元素(放置后 = 一路门输出口)', 'Add a switch element (placed = one gate output)')],
+    meter: ['＋电压表', '+ Meter', t('添加电压表(放置后 = 一路信号输入口)', 'Add a meter (placed = one signal input)')] };
+  document.querySelectorAll('.cpadd').forEach(b => {
+    const [zh, en, ti] = add[b.dataset.add];
+    b.textContent = t(zh, en); b.title = ti;
+  });
+  const put = (sel, txt) => { const e = document.querySelector(sel); if (e) e.textContent = txt; };
+  put('.cplabel', t('元素属性', 'Element'));
+  const sx = document.getElementById('cppropsx'); if (sx) sx.title = t('关闭', 'Close');
+  const rowLabel = (crow, zh, en) => {
+    const row = document.querySelector(crow);
+    if (!row) return;
+    for (const n of [...row.childNodes])
+      if (n.nodeType === 3 && n.textContent.trim() === zh) { n.textContent = ' ' + en + ' '; break; }
+  };
+  rowLabel('#cpprops .crow:nth-of-type(2)', '名称', 'Name');
+  rowLabel('#cpirange', '范围', 'Range');
+  const styleSel = document.getElementById('cpistyle');
+  if (styleSel) for (const o of styleSel.options)
+    o.textContent = t({ dark: '深色', silver: '银色', neon: '霓虹', retro: '复古', minimal: '极简' }[o.value],
+      { dark: 'Dark', silver: 'Silver', neon: 'Neon', retro: 'Retro', minimal: 'Minimal' }[o.value]);
+  const sizebar = document.getElementById('cpsizebar');
+  if (sizebar) {
+    const n1 = sizebar.childNodes[0], n2 = [...sizebar.childNodes].find(n => n.nodeType === 3 && n.textContent.includes('列'));
+    const n3 = [...sizebar.childNodes].find(n => n.nodeType === 3 && n.textContent.includes('行'));
+    if (n1) n1.textContent = t('面板尺寸', 'Panel size ');
+    if (n2) n2.textContent = t(' 列 × ', ' cols × ');
+    if (n3) n3.textContent = t(' 行', ' rows');
+  }
+  const nm = document.getElementById('cpmname');
+  const nmLabel = nm ? nm.previousSibling : null;
+  if (nmLabel && nmLabel.nodeType === 3) nmLabel.textContent = t('面板名称 ', 'Panel name ');
+  if (nm && nm.value === '我的面板') nm.value = t('我的面板', 'My Panel');
+  const sv = document.getElementById('cpsave');
+  if (sv) { sv.textContent = t('保存设计', 'Save design'); sv.title = t('把布局存入左侧「我的组件」', 'Save the layout under MINE on the left'); }
+  const pl = document.getElementById('cpplace');
+  if (pl) { pl.textContent = t('⬇ 放置组件', '⬇ Place module'); pl.title = t('保存并放置一个实例到画布', 'Save and place an instance on the canvas'); }
+  const pr = document.getElementById('cppropsx');
+  void pr;
+}
 let selId = null;
 
 export function initStudio() {

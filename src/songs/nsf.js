@@ -22,6 +22,7 @@ import { addCable } from '../core/cables.js';
 import { clearAll } from '../core/serialize.js';
 import { fitView } from '../core/view.js';
 import { toast } from '../ui/toast.js';
+import { t } from '../core/i18n.js';
 import { NSF_TRACKS } from './nsf-data.js';
 
 const MIX_CH = ['A', 'B', 'C'];
@@ -103,5 +104,5 @@ export function buildNsfSong() {
   addCable(mix2.id, 'OUT', scope.id, 'IN');
 
   fitView();
-  toast('NSF 转谱:四轨 × 4 乐段(每条卷帘 16 小节)钢琴卷帘,全曲 64 小节自动轮换,100 BPM');
+  toast(t('NSF 转谱:四轨 × 4 乐段(每条卷帘 16 小节)钢琴卷帘,全曲 64 小节自动轮换,100 BPM', 'NSF transcription: 4 tracks × 4 movements (16 bars per roll) of piano rolls, the full 64-bar song auto-advancing at 100 BPM'));
 }
