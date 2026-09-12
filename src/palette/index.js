@@ -11,7 +11,7 @@ import { firstGesture } from '../core/audio.js';
 import { saveSoon } from '../core/save.js';
 import { toast } from '../ui/toast.js';
 
-const GROUPS = [['control', '控制 CONTROL'], ['source', '信号源 SOURCE'], ['process', '处理 PROCESS'], ['output', '输出 OUTPUT']];
+const GROUPS = [['control', '控制 CONTROL'], ['source', '信号源 SOURCE'], ['process', '处理 PROCESS'], ['logic', '逻辑 LOGIC'], ['output', '输出 OUTPUT']];
 
 export function buildPalette() {
   const pal = $('#palette');
