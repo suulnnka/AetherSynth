@@ -27,7 +27,7 @@ const GROUPS = {
 export const MODULE_ORDER = [
   'minimoog', 'knob', 'bigknob', 'fader', 'hfader', 'touch', 'biknob', 'step6', 'step10', 'step4', 'chrom', 'switch', 'keyboard', 'seq', 'roll',
   'vco', 'wt', 'phys', 'noiseo', 'fm', 'lfo', 'noise', 'mic', 'envf', 'clk', 'kick', 'snare', 'hat',
-  'vcf', 'vca', 'amp', 'adsr', 'delay', 'atten', 'mult', 'mult8', 'quant', 'sh', 'mix', 'midicv', 'ringmod', 'glide',
+  'vcf', 'vca', 'amp', 'adsr', 'delay', 'atten', 'mult', 'mult8', 'quant', 'sh', 'mix', 'midicv', 'ringmod', 'fmod', 'glide',
   'comp', 'bquant', 'sred', 'drive', 'chorus', 'reverb', 'pan',
   'add', 'sub', 'mul', 'div', 'avg', 'round', 'floor', 'ceil', 'sel',
   'not', 'and', 'or', 'xor', 'cmp', 'srl', 'tff',

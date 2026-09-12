@@ -22,6 +22,7 @@ export const PORT_TYPES = {
   'seq:CV': 'cv', 'seq:GATE': 'gate', 'seq:CLK': 'gate', 'seq:RST': 'gate',
   'vco:VOCT': 'cv', 'vco:FM': 'cv',
   'fm:VOCT': 'cv', 'fm:RATIO': 'cv', 'fm:INDEX': 'cv',
+  'fmod:DEPTH': 'cv',
   'lfo:RATE': 'cv', 'lfo:SIN': 'cv', 'lfo:TRI': 'cv', 'lfo:SQR': 'gate', 'lfo:SAW': 'cv',
   'vcf:CUTOFF': 'cv', 'vcf:RESO': 'cv',
   'vca:GAIN': 'cv',

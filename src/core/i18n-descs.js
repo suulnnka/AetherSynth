@@ -43,6 +43,7 @@ export const EN_DESCS = {
   mix: 'Three-way equal mix (≈0.33 each) to OUT. For level control, put an attenuator + knob in front of each input.',
   midicv: 'Standalone MIDI→CV converter: receives notes from the MIDI port into 1V/oct pitch, gate and velocity voltages (MIDI keyboard / sequencer already have this built in — their CV port works directly).',
   ringmod: 'Ring modulator: OUT = X × Y (true frequency multiplication; X takes the signal path, Y the gain parameter). sine × sine creates sum & difference sidebands beyond both inputs — bells / metal / robot voices.',
+  fmod: 'FM modulation unit: one signal (IN) is frequency-modulated by another (MOD). The modulator sweeps a delay line, producing true FM sidebands — any signal (samples / mic / synth) can be FM-ed. DEPTH sets the deviation: audio-rate modulators at high depth = metallic bells; low-frequency ones = vibrato / sweeps. MIX blends dry and wet. The frequency-modulation counterpart of the ring modulator (amplitude).',
   glide: 'Slew / portamento: the output glides toward the input with a TIME constant. Between sequencer CV and an oscillator for portamento; also low-passes any CV.',
   comp: 'Compressor: automatically tames loud peaks for a steadier, fatter sound. THRESH sets the door (10V = 0dB, 0V = −50dB), RATIO 10V = 20:1, ATK/REL set the action; the screen shows gain reduction live.',
   bquant: 'Quantizes sample amplitude to N bits (2~8bit) for digital grit and early-sampler tone. Lower BITS = rougher: 0V = 2bit, 10V = 8bit (default).',

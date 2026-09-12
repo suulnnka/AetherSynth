@@ -5,6 +5,7 @@ import { clamp } from '../core/utils.js';
 import { ctx } from '../core/audio.js';
 import { kit } from '../kit/index.js';
 import { saveSoon } from '../core/save.js';
+import { t } from '../core/i18n.js';
 
 export const processors = {
   vcf: {
@@ -305,6 +306,45 @@ export const processors = {
       const g = ctx.createGain(); g.gain.value = 1 / 3;
       this.ins.A.connect(g); this.ins.B.connect(g); this.ins.C.connect(g);
       g.connect(this.outs.OUT);
+    }
+  },
+
+  fmod: {
+    id: 'fmod', name: 'FM调制', en: 'FM MODULATOR', cat: 'process', w: 10, h: 8,
+    desc: 'FM 调制单元:一路信号(IN)被另一路信号(MOD)调制。调制器进延时时间,产生真实调频边带——任何信号(采样 / 话筒 / 合成器)都能被 FM。DEPTH 定调制深度:音频率制器 + 大深度 = 金属 / 铃铛;低频制器 = 颤音 / 扫频。MIX 干湿混合,与环形调制(幅度调制)互补。',
+    ports: [
+      { id: 'OUT', dir: 'out', name: 'OUT', desc: '调制后输出(干湿混合)' },
+      { id: 'IN', dir: 'in', name: 'IN', desc: '被调制信号(音频)' },
+      { id: 'MOD', dir: 'in', name: 'MOD', desc: '调制器输入(音频 / CV;正负都有效)' },
+      { id: 'DEPTH', dir: 'in', name: 'DEPTH', desc: '深度调制 0~10V,叠加到深度旋钮(接 LFO / 包络扫深度)' }
+    ],
+    state: () => ({ depth: 3, mix: 7 }),
+    build() {
+      // 延时线相位调制:MOD ±1 × 深度(s)→ delayTime;IN 过延时 = 湿声
+      this.dl = ctx.createDelay(0.1); this.dl.delayTime.value = 0.003;
+      this.depG = ctx.createGain(); this.depG.gain.value = 0.0018;
+      this.ins.MOD.connect(this.depG); this.depG.connect(this.dl.delayTime);
+      this.wet = ctx.createGain(); this.wet.gain.value = 0.7;
+      this.dry = ctx.createGain(); this.dry.gain.value = 0.3;
+      this.ins.IN.connect(this.dl); this.dl.connect(this.wet); this.wet.connect(this.outs.OUT);
+      this.ins.IN.connect(this.dry); this.dry.connect(this.outs.OUT);
+      this.mon('DEPTH');
+      const row = kit.row(this);
+      kit.knob(this, { parent: row, key: 'depth', label: 'DEPTH', min: 0, max: 10, value: this.state.depth, unit: '' });
+      kit.knob(this, { parent: row, key: 'mix', label: 'MIX', min: 0, max: 10, value: this.state.mix, unit: '' });
+      kit.hint(t('MOD 调制 IN 的延时 = 相位 / 频率调制', 'MOD delays IN = phase / frequency modulation'), this);
+      this._v = -1;
+    },
+    tick() {
+      // 深度:旋钮 + DEPTH CV(0~10)→ ±6ms 频偏;基础延时 3ms 保证非负
+      const total = clamp(this.state.depth + this.volts('DEPTH', 0), 0, 10);
+      if (total !== this._v) {
+        this._v = total;
+        this.depG.gain.setTargetAtTime((total / 10) * 0.006, ctx.currentTime, 0.01);
+      }
+      const mix = clamp(this.state.mix, 0, 10) / 10, t = ctx.currentTime;
+      this.wet.gain.setTargetAtTime(mix, t, 0.01);
+      this.dry.gain.setTargetAtTime(1 - mix, t, 0.01);
     }
   },
 

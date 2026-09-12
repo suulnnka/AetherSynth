@@ -17,6 +17,7 @@ export const FLOW = {
   vca: { OUT: ['IN'] },
   adsr: { ENV: ['GATE'] },
   delay: { OUT: ['IN'] },
+  fmod: { OUT: ['IN'] },
   atten: { OUT: ['IN'] },
   mult: { O1: ['IN'], O2: ['IN'], O3: ['IN'], O4: ['IN'] },
   mult8: { O1: ['IN'], O2: ['IN'], O3: ['IN'], O4: ['IN'], O5: ['IN'], O6: ['IN'], O7: ['IN'], O8: ['IN'] },
