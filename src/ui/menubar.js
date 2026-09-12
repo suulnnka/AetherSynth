@@ -13,6 +13,7 @@ import { encapsulateSelected } from '../core/composite.js';
 import { duplicateMod, deleteModWithConfirm } from '../core/module.js';
 import { saveSoon } from '../core/save.js';
 import { demoPatch } from '../songs/demo.js';
+import { MOOG_PIECES } from '../songs/minimoog-songs.js';
 import { SONGS } from '../songs/data.js';
 import { loadSong } from '../songs/player.js';
 import { toggleStudio, isStudioVisible } from '../workshop/studio.js';
@@ -101,6 +102,11 @@ const MENUS = [
     ...SONGS.map(s => ({
       label: `${s.name} · ${s.bpm} BPM`,
       action: () => { firstGesture(); loadSong(s.id); }
+    })),
+    { sep: true },
+    ...MOOG_PIECES.map(p => ({
+      label: p.label,
+      action: () => { firstGesture(); p.build(); }
     }))
   ]},
   { label: '帮助', items: [
