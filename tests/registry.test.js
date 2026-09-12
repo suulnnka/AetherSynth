@@ -8,10 +8,10 @@ beforeEach(() => {
   DEFS_ORDER.length = 0;
 });
 
-test('registerAllModules:注册全部 64 个内置组件并排版接口', () => {
+test('registerAllModules:注册全部 71 个内置组件并排版接口', () => {
   registerAllModules();
-  assert.equal(DEFS_ORDER.length, 64);
-  assert.equal(Object.keys(DEFS).length, 64);
+  assert.equal(DEFS_ORDER.length, 71);
+  assert.equal(Object.keys(DEFS).length, 71);
   for (const id of MODULE_ORDER) {
     const d = DEFS[id];
     assert.ok(d, '缺少组件:' + id);
