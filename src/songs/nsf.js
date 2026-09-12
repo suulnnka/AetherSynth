@@ -29,7 +29,7 @@ const MIX_CH = ['A', 'B', 'C'];
 
 export const NSF_DEMO = {
   id: 'nsf-1',
-  name: 'NSF 转谱 · 四轨全曲(64 小节 / 100 BPM)',
+  name: '8bit 经典曲目',
   build: () => buildNsfSong()
 };
 
@@ -104,5 +104,5 @@ export function buildNsfSong() {
   addCable(mix2.id, 'OUT', scope.id, 'IN');
 
   fitView();
-  toast(t('NSF 转谱:四轨 × 4 乐段(每条卷帘 16 小节)钢琴卷帘,全曲 64 小节自动轮换,100 BPM', 'NSF transcription: 4 tracks × 4 movements (16 bars per roll) of piano rolls, the full 64-bar song auto-advancing at 100 BPM'));
+  toast(t('8bit 经典曲目:四轨 × 4 乐段(每条卷帘 16 小节)钢琴卷帘,全曲 64 小节自动轮换,100 BPM', '8-bit classic track: 4 tracks × 4 movements (16 bars per roll) of piano rolls, the full 64-bar song auto-advancing at 100 BPM'));
 }

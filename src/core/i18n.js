@@ -48,7 +48,7 @@ const ITEM_EN = {
   'm-modeld': 'Moog Teardown · Model D discrete build (120 BPM)',
   'fm-bell': 'FM Synthesis · 2-operator bells (100 BPM)',
   'chip-quest': 'Pixel Expedition · 8-bit long form (512 steps / 64 bars)',
-  'nsf-1': 'NSF Transcription · 4-track full song (64 bars / 100 BPM)'
+  'nsf-1': '8-bit Classic Track'
 };
 export const itemName = item =>
   LANG === 'zh' ? (item.label ?? item.name) : (ITEM_EN[item.id] ?? item.label ?? item.name);
