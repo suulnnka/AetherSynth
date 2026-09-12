@@ -14,6 +14,7 @@ import { worldEl } from './view.js';
 import { selMod } from './selection.js';
 import { showTip, hideTip } from '../ui/tooltip.js';
 import { toast } from '../ui/toast.js';
+import { confirmDialog } from '../ui/window.js';
 
 export class Mod {
   constructor(def, cx, cy, id, modState) {
@@ -46,7 +47,7 @@ export class Mod {
     const mx = el('div', 'mx', head);
     mx.textContent = '✕'; mx.title = '删除组件';
     mx.addEventListener('pointerdown', e => e.stopPropagation());
-    mx.addEventListener('click', e => { e.stopPropagation(); deleteMod(this.id); });
+    mx.addEventListener('click', e => { e.stopPropagation(); deleteModWithConfirm(this.id); });
     // Eurorack 面板螺丝
     for (const pos of ['tl', 'tr', 'bl', 'br']) el('div', 'screw screw-' + pos, root);
 
@@ -187,11 +188,10 @@ export function createModule(defId, cx, cy, id, modState) {
   return new Mod(DEFS[defId], cx, cy, id, modState);
 }
 
+/** 原样删除(无确认)。供确认包装、组合解体、工坊原位重建等已获意图的调用方使用 */
 export function deleteMod(id) {
   const m = state.mods.get(id);
   if (!m) return;
-  if (m.def.composite && m.childIds && m.childIds.length &&
-      !confirm('删除组合模块会连同内部 ' + m.childIds.length + ' 个组件一起删除,确定?')) return;
   if (m.childIds && m.childIds.length) {   // 组合模块:连带删除内部所有组件
     for (const kid of [...m.childIds]) deleteMod(kid);
     m.childIds = [];
@@ -209,6 +209,21 @@ export function deleteMod(id) {
   if (state.sel === id) state.sel = null;
   toast('已删除:' + m.def.name);
   saveSoon();
+}
+
+/** 面向用户交互的删除:组合模块先经确认窗口 */
+export async function deleteModWithConfirm(id) {
+  const m = state.mods.get(id);
+  if (!m) return;
+  if (m.def.composite && m.childIds && m.childIds.length) {
+    const ok = await confirmDialog({
+      title: '删除组合模块',
+      message: `会连同内部的 ${m.childIds.length} 个组件一起删除,确定?`,
+      okLabel: '删除', danger: true
+    });
+    if (!ok) return;
+  }
+  deleteMod(id);
 }
 
 export function duplicateMod(id) {

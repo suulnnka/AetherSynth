@@ -40,6 +40,11 @@ body {
 .tbtn.power { color: #c25b3a; border-color: #e5c4b6; min-width: 70px; }
 .tbtn.power.on { color: #178a4c; border-color: #a9d8bd; box-shadow: 0 0 8px rgba(30,180,100,.2) inset; }
 .tbtn.warn:hover { border-color: #d98a8a; color: #b03030; }
+.tbtn.primary {
+  background: linear-gradient(160deg, #ffd97a, #f0b429); border-color: #d99a12;
+  color: #5c4000; font-weight: 700; white-space: nowrap;
+}
+.tbtn.primary:hover { border-color: #b98a1d; }
 .tlabel { font-size: 12px; color: var(--dim); display: flex; align-items: center; gap: 6px; }
 .tlabel select {
   background: #ffffff; color: var(--txt); border: 1px solid var(--line);
@@ -65,29 +70,12 @@ body {
 }
 #tooltip b { color: var(--amber); }
 #toast {
-  position: fixed; left: 50%; bottom: 40px; transform: translateX(-50%); z-index: 110;
+  position: fixed; left: 50%; bottom: 40px; transform: translateX(-50%); z-index: 500;
   background: #ffffff; border: 1px solid var(--line); border-radius: 8px;
   padding: 8px 16px; font-size: 12.5px; color: var(--txt); box-shadow: 0 6px 20px rgba(30,40,60,.22);
   transition: opacity .25s;
 }
-.modal {
-  position: fixed; inset: 0; z-index: 90; background: rgba(50,60,75,.4);
-  display: flex; align-items: center; justify-content: center;
-}
-.modal[hidden] { display: none; }
-.mbox {
-  width: min(680px, 92vw); max-height: 84vh; display: flex; flex-direction: column;
-  background: #ffffff; border: 1px solid var(--line); border-radius: 10px; overflow: hidden;
-}
-.mhead2 {
-  display: flex; justify-content: space-between; align-items: center;
-  padding: 10px 14px; font-weight: 700; border-bottom: 1px solid var(--line); background: var(--panel2);
-}
-.mbody2 { padding: 12px 18px; overflow-y: auto; font-size: 12.5px; line-height: 1.8; }
-.mbody2 h3 { margin: 12px 0 4px; color: #a06e00; font-size: 13px; }
-.mbody2 ul, .mbody2 ol { padding-left: 20px; }
-.mbody2 li { margin: 2px 0; }
-.mbody2 b { color: #1f242a; }
+/* 通用弹窗样式已迁移到 styles/window.css */
 ::-webkit-scrollbar { width: 10px; height: 10px; }
 ::-webkit-scrollbar-thumb { background: #c3c9d2; border-radius: 5px; border: 2px solid var(--panel); }
 ::-webkit-scrollbar-track { background: transparent; }

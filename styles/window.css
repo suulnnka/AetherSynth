@@ -1,0 +1,39 @@
+/* ---------- 通用窗口组件(AppWindow / 确认框 / 警告框) ---------- */
+.gw-backdrop {
+  position: fixed; inset: 0; background: rgba(50,60,75,.4);
+}
+.gw {
+  position: fixed; display: flex; flex-direction: column;
+  min-width: 280px; max-height: min(84vh, 100%);
+  background: #ffffff; border: 1px solid var(--line); border-radius: 10px;
+  box-shadow: 0 12px 36px rgba(30,40,60,.28); overflow: hidden;
+  outline: none;
+}
+.gw-tbar {
+  display: flex; align-items: center; gap: 8px; flex: 0 0 auto;
+  padding: 8px 12px; font-weight: 700;
+  border-bottom: 1px solid var(--line); background: var(--panel2);
+  cursor: grab; user-select: none;
+}
+.gw-tbar:active { cursor: grabbing; }
+.gw-title {
+  flex: 1; font-size: 13px; overflow: hidden;
+  white-space: nowrap; text-overflow: ellipsis;
+}
+.gw-x { padding: 2px 8px; font-size: 11px; }
+.gw-body {
+  padding: 12px 16px; overflow-y: auto;
+  font-size: 12.5px; line-height: 1.8; color: var(--txt);
+}
+.gw-foot {
+  display: flex; justify-content: flex-end; gap: 8px; flex: 0 0 auto;
+  padding: 10px 12px; border-top: 1px solid var(--line); background: var(--panel2);
+}
+.gw-message { min-width: 200px; }
+
+/* 帮助内容排版(gw-body 提供留白与滚动,这里只管文字层级) */
+.mbody2 h3 { margin: 12px 0 4px; color: #a06e00; font-size: 13px; }
+.mbody2 h3:first-child { margin-top: 0; }
+.mbody2 ul, .mbody2 ol { padding-left: 20px; }
+.mbody2 li { margin: 2px 0; }
+.mbody2 b { color: #1f242a; }

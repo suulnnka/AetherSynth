@@ -1,13 +1,17 @@
-/* 帮助弹窗 */
+/* 帮助窗口:内容在 index.html 的 #helpcontent,由通用窗口组件承载 */
 
 import { $ } from '../core/utils.js';
+import { AppWindow } from './window.js';
 
-const helpModal = () => $('#helpmodal');
-
-export function hideHelp() { helpModal().hidden = true; }
+let win = null;
 
 export function initHelp() {
-  $('#help').addEventListener('click', () => helpModal().hidden = !helpModal().hidden);
-  $('#helpclose').addEventListener('click', hideHelp);
-  helpModal().addEventListener('click', e => { if (e.target === helpModal()) hideHelp(); });
+  win = new AppWindow({
+    title: '使用帮助',
+    content: $('#helpcontent'),
+    width: 'min(680px, 92vw)'
+  });
+  $('#help').addEventListener('click', () => win.toggle());
 }
+
+export function hideHelp() { if (win) win.close(); }

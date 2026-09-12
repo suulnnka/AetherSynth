@@ -12,6 +12,7 @@ import { reflowActive } from './flow.js';
 import { saveSoon } from './save.js';
 import { selMod } from './selection.js';
 import { toast } from '../ui/toast.js';
+import { confirmDialog } from '../ui/window.js';
 
 export function mkCompositeDef(key, ports, w, h) {
   const ins = ports.filter(p => p.dir === 'in').map(p => p.id);
@@ -98,8 +99,17 @@ export function encapsulateSelected() {
   toast('已封装为组合模块(右键组合 = 解体还原)');
 }
 
-export function dissolveComposite(comp) {
+/** 解体组合(面向用户交互:先经确认窗口;SYNTH.dissolve 同样返回 Promise) */
+export async function dissolveComposite(comp) {
   if (!comp || !comp.def || !comp.def.composite) return;
+  if (comp.childIds && comp.childIds.length) {
+    const ok = await confirmDialog({
+      title: '解体组合',
+      message: `组合内的 ${comp.childIds.length} 个组件将恢复为独立组件,边界线缆自动重连,确定解体?`,
+      okLabel: '解体'
+    });
+    if (!ok) return;
+  }
   for (const map of (comp.state.maps || [])) {
     if (state.mods.has(map.extM) && state.mods.has(map.m))
       addCable(map.extM, map.extP, map.m, map.p);

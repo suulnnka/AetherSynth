@@ -28,11 +28,6 @@
 }
 #cptypebar .tbtn { font-size: 11.5px; padding: 4px 8px; }
 #cptypebar #cpthemebtn { flex: 1; }
-.tbtn.primary {
-  background: linear-gradient(160deg, #ffd97a, #f0b429); border-color: #d99a12;
-  color: #5c4000; font-weight: 700; white-space: nowrap;
-}
-.tbtn.primary:hover { border-color: #b98a1d; }
 #cptheme { padding: 6px 8px; border-bottom: 1px solid var(--line);
   display: flex; flex-direction: column; gap: 5px; font-size: 11px; color: var(--dim); }
 #cptheme.hidden { display: none; }

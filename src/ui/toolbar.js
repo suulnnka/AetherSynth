@@ -11,6 +11,7 @@ import { setSampleRate, currentRate } from '../core/engine.js';
 import { encapsulateSelected } from '../core/composite.js';
 import { demoPatch } from '../songs/demo.js';
 import { toast } from './toast.js';
+import { confirmDialog } from './window.js';
 import { updateStatus } from './statusbar.js';
 
 export function initToolbar() {
@@ -26,8 +27,13 @@ export function initToolbar() {
   $('#zoomout').addEventListener('click', () => { const r = viewport.getBoundingClientRect(); zoomAt(r.width / 2, r.height / 2, state.view.s / 1.25); });
   $('#zoomfit').addEventListener('click', fitView);
   $('#groupbtn').addEventListener('click', () => { firstGesture(); encapsulateSelected(); });
-  $('#clear').addEventListener('click', () => {
-    if (!confirm('清空画布上的所有组件和线缆?')) return;
+  $('#clear').addEventListener('click', async () => {
+    const ok = await confirmDialog({
+      title: '清空画布',
+      message: '将移除画布上的所有组件和线缆,确定?',
+      okLabel: '清空', danger: true
+    });
+    if (!ok) return;
     clearAll();
     saveSoon();
     toast('画布已清空');

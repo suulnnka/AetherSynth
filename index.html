@@ -9,6 +9,7 @@
 <link rel="stylesheet" href="styles/canvas.css">
 <link rel="stylesheet" href="styles/widgets.css">
 <link rel="stylesheet" href="styles/studio.css">
+<link rel="stylesheet" href="styles/window.css">
 </head>
 <body>
 <header id="bar">
@@ -142,10 +143,8 @@
 <div id="tooltip" hidden></div>
 <div id="toast" hidden></div>
 
-<div id="helpmodal" class="modal" hidden>
-  <div class="mbox">
-    <div class="mhead2">使用帮助 <button id="helpclose" class="tbtn">关闭 ✕</button></div>
-    <div class="mbody2">
+<!-- 帮助内容:由 src/ui/window.js 的 AppWindow 组件承载展示 -->
+<div id="helpcontent" class="mbody2" hidden>
       <h3>设计规则</h3>
       <ul>
         <li>所有组件(<b>振荡器、滤波器、键盘、喇叭……</b>)本体上没有任何开关、旋钮或按钮。</li>
@@ -179,9 +178,6 @@
         <li>支持 Web MIDI:插入 MIDI 键盘后,「键盘」组件自动接收(浏览器询问权限时允许即可)。</li>
       </ul>
     </div>
-  </div>
-</div>
-
 <script type="module" src="src/main.js"></script>
 </body>
 </html>

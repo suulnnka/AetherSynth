@@ -60,7 +60,8 @@ npm test         # 运行单元测试(Node 内置 test runner,零依赖)
 │   ├── palette/          左侧组件栏渲染
 │   ├── songs/            示例歌曲数据 / 搭棚 / 演示音色
 │   ├── interactions/     画布指针 / 全局键盘 / 右键菜单
-│   └── ui/               工具条 / 状态栏 / toast / tooltip / 帮助
+│   └── ui/               工具条 / 状态栏 / toast / tooltip / 窗口组件(window.js:
+│                         AppWindow + confirmDialog/alertDialog,全部弹窗的统一承载)
 └── tests/                node:test 单元测试(纯逻辑层)
 ```
 

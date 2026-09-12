@@ -12,6 +12,7 @@ import { viewport } from '../core/view.js';
 import { firstGesture } from '../core/audio.js';
 import { mkCustomDef, newCustomKey } from './custom-def.js';
 import { loadDesignIntoStudio, setPlaceMode, ensureStudioVisible, isEditMode } from './studio.js';
+import { confirmDialog } from '../ui/window.js';
 import { toast } from '../ui/toast.js';
 
 export const designs = [];          // [{ key, spec }]
@@ -157,10 +158,17 @@ export function refreshMine() {
       placeAtCenter(d.key);
       toast('已放置:' + d.spec.name);
     });
-    it.addEventListener('contextmenu', e => {
+    it.addEventListener('contextmenu', async e => {
       e.preventDefault(); e.stopPropagation();
       const users = [...state.mods.values()].filter(m => m.def.id === d.key);
-      if (users.length && !confirm('「' + d.spec.name + '」正被 ' + users.length + ' 个组件使用,删除设计会连同删除它们。确定?')) return;
+      if (users.length) {
+        const ok = await confirmDialog({
+          title: '删除设计',
+          message: `「${d.spec.name}」正被 ${users.length} 个组件使用,删除设计会连同删除它们。确定?`,
+          okLabel: '删除', danger: true
+        });
+        if (!ok) return;
+      }
       users.forEach(m => deleteMod(m.id));
       delete DEFS[d.key];
       delete SINK_DEFS[d.key];
