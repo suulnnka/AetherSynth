@@ -4,6 +4,7 @@
 import { clamp } from '../core/utils.js';
 import { ctx } from '../core/audio.js';
 import { kit } from '../kit/index.js';
+import { saveSoon } from '../core/save.js';
 
 export const outputs = {
   spk: {
@@ -187,8 +188,8 @@ export const outputs = {
   },
 
   rec: {
-    id: 'rec', name: '录音机', en: 'PCM RECORDER', cat: 'output', w: 8, h: 7,
-    desc: 'PCM 采样录音机(最长 60 秒)。REC 门高电平录音,PLAY 门播放,LOOP ≥0.5V 循环(未接线默认循环)。',
+    id: 'rec', name: '音频录音机', en: 'AUDIO RECORDER', cat: 'output', w: 8, h: 7,
+    desc: 'PCM 采样录音机(最长 60 秒),录音频信号。REC 门高电平录音,PLAY 门播放,LOOP ≥0.5V 循环(未接线默认循环)。录 CV 请用「CV录音机」。',
     ports: [
       { id: 'OUT', dir: 'out', name: 'OUT', desc: '回放输出' },
       { id: 'IN', dir: 'in', name: 'IN', desc: '录音信号输入' },
@@ -294,5 +295,92 @@ export const outputs = {
       try { this.sp.disconnect(); this.mute.disconnect(); } catch (e) {}
       this.stopPlay();
     }
+  },
+
+  crec: {
+    id: 'crec', name: 'CV录音机', en: 'CV RECORDER', cat: 'output', w: 8, h: 7,
+    desc: '控制电压(CV).loop 录音机:以 100Hz 采样 IN 口电压(最长 30 秒),PLAY 回放时原样重放电压曲线,LOOP ≥0.5V 循环(未接线默认循环)。把 LFO / 包络 / 音序器即兴弹的 CV 录下来变成可循环的调制源。',
+    ports: [
+      { id: 'OUT', dir: 'out', name: 'OUT', desc: '回放的 CV 电压' },
+      { id: 'IN', dir: 'in', name: 'IN', desc: 'CV 信号输入(录音对象)' },
+      { id: 'REC', dir: 'in', name: 'REC', desc: '录音门(≥0.5V 录音)' },
+      { id: 'PLAY', dir: 'in', name: 'PLAY', desc: '播放门(≥0.5V 播放)' },
+      { id: 'LOOP', dir: 'in', name: 'LOOP', desc: '循环(默认循环,接 0V 关闭)' }
+    ],
+    state: () => ({ data: [] }),
+    build() {
+      this.data = Array.isArray(this.state.data) ? this.state.data.filter(Number.isFinite) : [];
+      this.state.data = this.data;
+      this.MAX = 3000; this.HZ = 100;              // 100Hz × 30s
+      this.recording = false; this.playing = false;
+      this._last = 0; this._p0 = 0; this._lastV = 0;
+      this.cCv = ctx.createConstantSource(); this.cCv.offset.value = 0;
+      this.cCv.connect(this.outs.OUT); this.cCv.start();
+      this.mon('IN'); this.mon('REC'); this.mon('PLAY');
+      kit.screen(this, 'scr');
+    },
+    tick() {
+      const t = ctx.currentTime;
+      const re = this.edge('REC');
+      if (re === 1) { this.data.length = 0; this.recording = true; this._last = t; saveSoon(); }
+      else if (re === -1) { this.recording = false; if (this.data.length) saveSoon(); }
+      if (this.recording) {
+        const v = this.mons.IN ? this.mons.IN.v : 0;
+        this._lastV = v;
+        // 固定 100Hz 采样:tick 间隔不足时用最近电压补齐
+        while (t - this._last >= 0.01 && this.data.length < this.MAX) {
+          this.data.push(Math.round(v * 100) / 100);
+          this._last += 0.01;
+        }
+        if (this.data.length >= this.MAX) this.recording = false;
+      }
+      const pe = this.edge('PLAY');
+      if (pe === 1) { this.playing = true; this._p0 = t; }
+      else if (pe === -1) this.playing = false;
+      const o = this.cCv.offset;
+      if (this.playing && this.data.length) {
+        let i = Math.floor((t - this._p0) * this.HZ);
+        if (i >= this.data.length) {
+          if (this.volts('LOOP', 10) >= 0.5) { this._p0 += this.data.length / this.HZ; i = Math.floor((t - this._p0) * this.HZ); }
+          else { this.playing = false; i = -1; }
+        }
+        if (i >= 0) o.setTargetAtTime(this.data[i] ?? 0, t, 0.006);
+        else o.setTargetAtTime(0, t, 0.01);
+      } else if (!this.playing) o.setTargetAtTime(0, t, 0.02);
+      this.draw();
+    },
+    draw() {
+      const s = this.scr; if (!s) return;
+      const { c, w: W, h: H } = s;
+      c.fillStyle = '#0b0d10'; c.fillRect(0, 0, W, H);
+      c.strokeStyle = 'rgba(255,255,255,.07)';
+      c.beginPath(); c.moveTo(0, H / 2); c.lineTo(W, H / 2); c.stroke();
+      const n = this.data.length;
+      c.strokeStyle = '#5dffe1'; c.lineWidth = 1; c.beginPath();
+      if (n) {
+        for (let x = 0; x < W; x++) {
+          const i0 = Math.floor(x / W * n), i1 = Math.min(n, Math.floor((x + 1) / W * n) + 1);
+          let mn = 10, mx = -10;
+          for (let i = i0; i < i1; i++) { const v = this.data[i]; if (v < mn) mn = v; if (v > mx) mx = v; }
+          c.moveTo(x, H / 2 - clamp(mx / 10, -1, 1) * (H / 2 - 8));
+          c.lineTo(x, H / 2 - clamp(mn / 10, -1, 1) * (H / 2 - 8));
+        }
+      } else { c.moveTo(0, H / 2); c.lineTo(W, H / 2); }
+      c.stroke();
+      // 播放头
+      if (this.playing && n) {
+        const ph = Math.floor((ctx.currentTime - this._p0) * this.HZ) % n;
+        const x = ph / n * W;
+        c.strokeStyle = 'rgba(125,255,176,.9)';
+        c.beginPath(); c.moveTo(x, 2); c.lineTo(x, H - 2); c.stroke();
+      }
+      let st, col;
+      if (this.recording) { st = '● REC ' + (n / this.HZ).toFixed(1) + 's'; col = '#ff5d5d'; }
+      else if (this.playing) { st = '▶ PLAY' + (this.volts('LOOP', 10) >= 0.5 ? ' ∞' : ''); col = '#7dffb0'; }
+      else st = n ? 'READY ' + (n / this.HZ).toFixed(1) + 's' : 'EMPTY';
+      c.fillStyle = col || '#889'; c.font = '10px monospace';
+      c.fillText(st + '  ' + (this._lastV >= 0 ? '+' : '') + this._lastV.toFixed(1) + 'V', 5, 11);
+    },
+    dispose() { try { this.cCv.stop(); } catch (e) {} }
   }
 };

@@ -25,15 +25,17 @@ export const FLOW = {
   mix: { OUT: ['A', 'B', 'C'] },
   midicv: { VOCT: ['MIDI'], GATE: ['MIDI'], VEL: ['MIDI'] },
   seq: { CV: ['CLK'], GATE: ['CLK'], MIDI: ['CLK'] },
+  roll: { CV: ['PLAY'], GATE: ['PLAY'] },
   rec: { OUT: ['IN'] },
+  crec: { OUT: ['IN'] },
   comp: { OUT: ['IN'] },
   bquant: { OUT: ['IN'] },
   sred: { OUT: ['IN'] }
 };
 
-/** 显示 / 录音终端也算信号归宿(否则示波器永远休眠)。
+/** 显示 / 录音终端也算信号归宿(否则示波器永远休眠;录音机要能先录后接)。
     自制组件(工坊)带电压表输入口时会动态登记到这里。 */
-export const SINK_DEFS = { spk: 1, scope: 1, xy: 1, rec: 1, spec: 1 };
+export const SINK_DEFS = { spk: 1, scope: 1, xy: 1, rec: 1, crec: 1, spec: 1 };
 
 /** 纯计算:返回活跃组件 id 集合。mods/cables 形如 state.mods/state.cables,
     元素只需提供 { id, def:{id, ports, flow} }(单测可传假对象)。 */
