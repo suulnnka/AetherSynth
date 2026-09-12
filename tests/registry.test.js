@@ -8,10 +8,10 @@ beforeEach(() => {
   DEFS_ORDER.length = 0;
 });
 
-test('registerAllModules:注册全部 51 个内置组件并排版接口', () => {
+test('registerAllModules:注册全部 54 个内置组件并排版接口', () => {
   registerAllModules();
-  assert.equal(DEFS_ORDER.length, 51);
-  assert.equal(Object.keys(DEFS).length, 51);
+  assert.equal(DEFS_ORDER.length, 54);
+  assert.equal(Object.keys(DEFS).length, 54);
   for (const id of MODULE_ORDER) {
     const d = DEFS[id];
     assert.ok(d, '缺少组件:' + id);
@@ -57,6 +57,16 @@ test('新增组件:放大器 / 一分八 / 频谱仪', () => {
   assert.equal(DEFS.mult8.ports.length, 9);          // IN + 8 出
   assert.equal(DEFS.mult8.portsById.O8.type, 'any');
   assert.equal(DEFS.spec.portsById.IN.type, 'any');
+});
+
+test('高级振荡器:波表 / 物理建模 / 噪声振荡器端口就位', () => {
+  registerAllModules();
+  assert.equal(DEFS.wt.portsById.SYNC.type, 'gate');
+  assert.equal(DEFS.wt.portsById.POS.type, 'cv');
+  assert.equal(DEFS.phys.portsById.TRIG.type, 'gate');
+  assert.equal(DEFS.phys.portsById.VOCT.type, 'cv');
+  assert.equal(DEFS.phys.portsById.DAMP.type, 'cv');
+  assert.equal(DEFS.noiseo.portsById.COLOR.type, 'cv');
 });
 
 test('时钟与相位同步:clk / SYNC / DUTY / PUL 端口就位', () => {

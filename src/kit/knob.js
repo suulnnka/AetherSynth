@@ -20,9 +20,14 @@ export function knob(mod, o = {}) {
     for (const s of steps) if (Math.abs(s - v) < Math.abs(best - v)) best = s;
     return best;
   };
-  const fmt = v => o.note
-    ? NOTES[Math.round(clamp(v, 0, 1) * 12) % 12] + ' · ' + v.toFixed(2) + 'V'
-    : v.toFixed(1) + unit;
+  const fmt = v => {
+    if (o.note) return NOTES[Math.round(clamp(v, 0, 1) * 12) % 12] + ' · ' + v.toFixed(2) + 'V';
+    if (o.labels) {                          // 分段标签(如乐器音色选择)
+      const i = clamp(Math.round((v - min) / span * (o.labels.length - 1)), 0, o.labels.length - 1);
+      return o.labels[i];
+    }
+    return v.toFixed(1) + unit;
+  };
   const wrap = el('div', 'knobwrap', o.parent || mod.body);
   wrap.dataset.ctl = '1';
   if (o.label) el('div', 'klabel', wrap).textContent = o.label;
@@ -44,6 +49,7 @@ export function knob(mod, o = {}) {
     // 约定:只有默认旋钮(key 缺省)驱动 mod.cs 参数源;
     // 带 key 的旋钮(BPM / 空占比等自定义参数)由 def 自己在 tick 里取用
     if (!o.key && mod.cs) mod.cs.offset.setTargetAtTime(v, ctx.currentTime, 0.004);
+    if (o.onChange) o.onChange(v);
     saveSoon();
   };
   if (o.key) mod['set_' + key] = set; else mod.setKnob = set;
