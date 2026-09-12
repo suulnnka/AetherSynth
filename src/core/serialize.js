@@ -9,6 +9,7 @@ import { createModule } from './module.js';
 import { addCable, removeCable } from './cables.js';
 import { setCellSize, applyView } from './view.js';
 import { mkCustomDef } from '../workshop/custom-def.js';
+import { mkCompositeDef } from './composite.js';
 import { wireComposite } from './composite.js';
 import { designs, refreshMine } from '../workshop/designs.js';
 import { saveNow, LSKEY } from './save.js';
@@ -54,7 +55,16 @@ export function deserialize(data) {
   let maxId = 0;
   (data.modules || []).forEach(md => { if (md.i > maxId) maxId = md.i; });
   (data.designs || []).forEach(d => { const n = +String(d.key || '').split('#')[1]; if (n > maxId) maxId = n; });
+  (data.modules || []).forEach(md => {
+    const t = String(md.t || '');
+    if (t.startsWith('composite#')) { const n = +t.split('#')[1]; if (n > maxId) maxId = n; }
+  });
   state.uid = Math.max(data.uid || 1, maxId + 1);
+  (data.modules || []).forEach(md => {
+    if (md.t && String(md.t).startsWith('composite#') && !DEFS[md.t] && md.s && md.s.ports) {
+      mkCompositeDef(md.t, md.s.ports, md.s.w || 8, md.s.h || 4);
+    }
+  });
   (data.modules || []).forEach(md => {
     if (!DEFS[md.t]) return;
     createModule(md.t, md.x, md.y, md.i, md.s);
@@ -70,8 +80,16 @@ export function deserialize(data) {
   });
   // 组合 / 宏盒子:重载后重建「对外接口 ↔ 内部成员端口」的节点路由,
   // 并恢复盒子 → 成员的父子关系(移动 / 删除联动、活跃度传导都依赖它)
+  // 组合盒子:恢复父子关系与内部路由(移动 / 删除联动、活跃度传导都依赖它)
   for (const m of state.mods.values()) {
-    if (m.def.composite) wireComposite(m);
+    if (m.def.composite) {
+      m.childIds = (m.state.kids || []).slice();
+      for (const kid of m.childIds) {
+        const k = state.mods.get(kid);
+        if (k) k.parent = m.id;
+      }
+      wireComposite(m);
+    }
   }
   refreshMine();
   if (data.view) { Object.assign(state.view, data.view); applyView(); }
