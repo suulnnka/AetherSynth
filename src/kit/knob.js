@@ -15,6 +15,7 @@ export function knob(mod, o = {}) {
   const unit = o.unit ?? 'V';             // 值显示单位(V / BPM / % …)
   const quant = v => {
     v = clamp(v, min, max);
+    if (o.int) return Math.round(v);
     if (!steps) return Math.round(v * 100) / 100;
     let best = steps[0];
     for (const s of steps) if (Math.abs(s - v) < Math.abs(best - v)) best = s;
