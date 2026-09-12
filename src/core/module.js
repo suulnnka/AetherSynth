@@ -228,13 +228,13 @@ export function deleteMod(id) {
   saveSoon();
 }
 
-/** 面向用户交互的删除:组合模块先经确认窗口 */
+/** 面向用户交互的删除:组合 / 宏组件先经确认窗口 */
 export async function deleteModWithConfirm(id) {
   const m = state.mods.get(id);
   if (!m) return;
-  if (m.def.composite && m.childIds && m.childIds.length) {
+  if ((m.def.composite || m.def.macro) && m.childIds && m.childIds.length) {
     const ok = await confirmDialog({
-      title: '删除组合模块',
+      title: m.def.composite ? '删除组合模块' : '删除宏组件',
       message: `会连同内部的 ${m.childIds.length} 个组件一起删除,确定?`,
       okLabel: '删除', danger: true
     });
@@ -247,6 +247,7 @@ export function duplicateMod(id) {
   const m = state.mods.get(id);
   if (!m) return;
   if (m.def.composite) { toast('组合模块请用 封装 / 解体 管理'); return; }
+  if (m.def.macro) { toast('宏组件请在左侧「我的组件」中放置'); return; }
   const n = createModule(m.def.id, m.cx + 2, m.cy + 2, null, JSON.parse(JSON.stringify(m.state)));
   if (n.setKnob && m.setKnob) n.setKnob(m.state.v);
   if (n.setSw && m.setSw) n.setSw(m.state.on);

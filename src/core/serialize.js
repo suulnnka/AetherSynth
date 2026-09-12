@@ -1,6 +1,6 @@
 /* 补丁序列化 / 反序列化:localStorage 自动保存 + JSON 导入导出。
-   v3 格式:studio(工坊在制设计)+ designs(自制组件设计)+ modules + cables;
-   反序列化对旧 v2 补丁(含 cells / panelTheme 字段)保持兼容:忽略未知字段。 */
+   v4 格式:designs(自制组件设计,kind = 'panel' | 'macro')+ modules + cables。
+   反序列化对旧版补丁保持兼容:未知字段忽略,旧版喇叭 IN 口自动拆成 L/R。 */
 
 import { $ } from './utils.js';
 import { state } from './state.js';
@@ -9,15 +9,15 @@ import { createModule } from './module.js';
 import { addCable, removeCable } from './cables.js';
 import { setCellSize, applyView } from './view.js';
 import { mkCustomDef } from '../workshop/custom-def.js';
-import { designs, removeDesign, exitEditMode, refreshMine, resetPlacedSnapshot } from '../workshop/designs.js';
-import { studioPanel, syncThemeControls, syncStudioMetrics, setPlaceMode } from '../workshop/studio.js';
+import { registerMacroDef, wireMacro } from '../workshop/macros.js';
+import { wireComposite } from './composite.js';
+import { designs, refreshMine } from '../workshop/designs.js';
 import { saveNow, LSKEY } from './save.js';
 
 export function serialize() {
   return {
-    v: 3, cell: state.cellPx, uid: state.uid, view: { ...state.view },
-    studio: studioPanel() ? studioPanel().spec() : null,
-    designs: designs.map(d => ({ key: d.key, spec: d.spec })),
+    v: 4, cell: state.cellPx, uid: state.uid, view: { ...state.view },
+    designs: designs.map(d => ({ key: d.key, kind: d.kind, spec: d.spec })),
     modules: [...state.mods.values()].map(m => ({ i: m.id, t: m.def.id, x: m.cx, y: m.cy, s: m.state })),
     cables: [...state.cables.values()].map(c => ({ a: [c.a.m, c.a.p], b: [c.b.m, c.b.p], c: c.color }))
   };
@@ -25,15 +25,16 @@ export function serialize() {
 
 export function clearAll() {
   [...state.cables.values()].forEach(c => removeCable(c, { silent: true }));
-  [...state.mods.keys()].forEach(deleteModSilent);
+  [...state.mods.keys()].forEach(deleteQuiet);
   state.sel = null;
 }
 
-// clearAll 期间逐个删除会反复 toast,这里静默删除
-function deleteModSilent(id) {
+// 清空画布期间逐个静默删除(无确认 / 无 toast)
+function deleteQuiet(id) {
   const m = state.mods.get(id);
-  if (m) m.el.remove();
+  if (!m) return;
   m.dispose();
+  m.el.remove();
   state.mods.delete(id);
 }
 
@@ -44,12 +45,16 @@ export function deserialize(data) {
   setCellSize(cell);
   // 恢复自制组件设计(先于模块:模块按 key 引用这些定义)
   designs.length = 0;
-  exitEditMode();
-  resetPlacedSnapshot();
   for (const d of (data.designs || [])) {
-    if (!d || !d.key || !d.spec || !d.spec.cells) continue;
-    mkCustomDef(d.key, d.spec);
-    designs.push({ key: d.key, spec: d.spec });
+    if (!d || !d.key || !d.spec) continue;
+    if (d.kind === 'macro') {
+      if (!d.spec.members) continue;
+      registerMacroDef(d.key, d.spec);
+    } else {
+      if (!d.spec.cells) continue;
+      mkCustomDef(d.key, d.spec);
+    }
+    designs.push({ key: d.key, spec: d.spec, kind: d.kind || 'panel' });
   }
   // id 防碰撞:uid 至少抬到已恢复模块 / 设计最大编号之上
   let maxId = 0;
@@ -69,14 +74,20 @@ export function deserialize(data) {
       addCable(cd.a[0], cd.a[1], cd.b[0], 'R', cd.c);
     }
   });
-  // 恢复工坊在制设计与外观
-  if (studioPanel()) {
-    studioPanel().clear();
-    if (data.studio) studioPanel().loadSpec(data.studio);
-    syncThemeControls(studioPanel().getTheme());
+  // 组合 / 宏盒子:重载后重建「对外接口 ↔ 内部成员端口」的节点路由,
+  // 并恢复盒子 → 成员的父子关系(移动 / 删除联动、活跃度传导都依赖它)
+  for (const m of state.mods.values()) {
+    if (m.def.macro) {
+      m.childIds = (m.state.kids || []).slice();
+      for (const kid of m.childIds) {
+        const k = state.mods.get(kid);
+        if (k) k.parent = m.id;
+      }
+      wireMacro(m);
+    } else if (m.def.composite) {
+      wireComposite(m);
+    }
   }
-  setPlaceMode(false);
-  syncStudioMetrics();
   refreshMine();
   if (data.view) { Object.assign(state.view, data.view); applyView(); }
 }

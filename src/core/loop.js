@@ -4,7 +4,6 @@
 
 import { state } from './state.js';
 import { getCtx } from './audio.js';
-import { isStudioVisible, studioPanel } from '../workshop/studio.js';
 
 let _lastTick = 0;
 
@@ -20,7 +19,6 @@ export function tickAll() {
     if (m._active === false) continue;
     if (m.def.tick) { try { m.def.tick.call(m); } catch (e) {} }
   }
-  if (isStudioVisible() && studioPanel()) studioPanel().tick();
 }
 
 export function startRafLoop() { requestAnimationFrame(loop); }

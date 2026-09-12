@@ -74,6 +74,16 @@ export function computeActive(mods, cables) {
     const flow = (m && m.def.flow) || FLOW[m ? m.def.id : ''] || {};
     for (const o in flow) if (flow[o].includes(pid)) pushOut(mid, o);
   }
+  // 宏 / 组合盒激活时,内部成员组件一并激活(它们的节点路由不经过线缆图)
+  let grew = true;
+  while (grew) {
+    grew = false;
+    for (const m of mods.values()) {
+      if (!act.has(m.id) || !m.childIds || !m.childIds.length) continue;
+      for (const kid of m.childIds)
+        if (!act.has(kid)) { act.add(kid); grew = true; }
+    }
+  }
   return act;
 }
 

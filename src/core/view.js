@@ -52,7 +52,6 @@ export function fitView() {
 /** 切换格距:所有组件 / 接口 / 线缆按新格距重排 */
 export function setCellSize(px) {
   state.cellPx = px;
-  if (cellSizeListener) cellSizeListener();
   const k = state.cellPx / BASE;
   worldEl.style.setProperty('--cellpx', state.cellPx + 'px');
   worldEl.style.setProperty('--k', k);
@@ -65,6 +64,3 @@ export function setCellSize(px) {
   redrawCables();
 }
 
-/** 由 main 注入工坊度量同步(view 不反向依赖 workshop 层) */
-let cellSizeListener = null;
-export function setCellSizeListener(fn) { cellSizeListener = fn; }

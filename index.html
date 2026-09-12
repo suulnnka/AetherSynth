@@ -26,68 +26,14 @@
     </div>
   </div>
   <aside id="ctrlpanel" class="hidden">
-    <div id="cptoobar">
-      <button class="tbtn cpadd" data-add="knob" title="添加一个旋钮控件(放置后 = 一路 0~10V CV 输出口)">＋旋钮</button>
-      <button class="tbtn cpadd" data-add="fader" title="添加一个推子控件(放置后 = 一路 0~10V CV 输出口)">＋推子</button>
-      <button class="tbtn cpadd" data-add="switch" title="添加一个开关控件(放置后 = 一路 +10V/0V 门输出口)">＋开关</button>
-      <button class="tbtn cpadd" data-add="meter" title="添加一个电压表(放置后 = 一路信号输入口,显示接进来的电压)">＋电压表</button>
+    <div id="cpdhead">宏草稿 <span id="cpmcount"></span></div>
+    <div id="cpmlist"></div>
+    <div id="cpmempty">在画布上右键组件,<br>发送到这里收集。<br>保存后会化简成一个新组件。</div>
+    <div id="cpdfoot">
+      <input id="cpmname" placeholder="新组件名称">
+      <button id="cpmsave" class="tbtn primary">保存为新组件</button>
     </div>
-    <div id="cpinspect" class="hidden">
-      <div class="crow"><span class="cplabel">控件属性</span><button id="cpinspectx" class="tbtn" title="关闭属性面板">✕</button></div>
-      <div class="crow">名称 <input type="text" id="cpilabel" maxlength="10" style="flex:1;min-width:0"></div>
-      <div class="crow" id="cpirange">范围
-        <input type="number" id="cpimin" step="0.5" style="width:44px"> ~
-        <input type="number" id="cpimax" step="0.5" style="width:44px"> V
-        <label id="cpinotel" style="white-space:nowrap">半音 <input type="checkbox" id="cpinote"></label>
-      </div>
-    </div>
-    <div id="cptypebar">
-      <button id="cpthemebtn" class="tbtn">&#127912; 外观与尺寸</button>
-      <button id="cpplace" class="tbtn primary" title="把当前设计放置到画布,成为一个真正的组件">⬇ 放置组件</button>
-    </div>
-    <div id="cptheme" class="hidden">
-      <div class="crow">背景
-        <select id="cpbgtype">
-          <option value="solid">纯色</option>
-          <option value="gradient">渐变</option>
-          <option value="image">图片</option>
-        </select>
-      </div>
-      <div class="crow" id="cpbgsolid"><input type="color" id="cpbgc" value="#f7f8fa"></div>
-      <div id="cpbggrad" class="hidden">
-        <div class="crow">方向 <input type="range" id="cpangle" min="0" max="360" value="135" style="flex:1"></div>
-        <div class="crow stops">
-          <input type="color" id="cpg1" value="#a1c4fd" title="色标 1">
-          <input type="color" id="cpg2" value="#c2e9fb" title="色标 2">
-          <input type="color" id="cpg3" value="#e2d4ac" title="色标 3">
-          <input type="color" id="cpg4" value="#d9c493" title="色标 4">
-        </div>
-      </div>
-      <div id="cpbgimg" class="crow hidden">
-        <input type="text" id="cpimgurl" placeholder="图片 URL" style="flex:1;min-width:0">
-        <label class="cpfile">本地<input type="file" id="cpimgfile" accept="image/*"></label>
-      </div>
-      <div class="crow">尺寸
-        <input type="number" id="cpcols" min="1" max="6" value="3" style="width:36px">列 ×
-        <select id="cpspan" title="每个控制格占据的主格数">
-          <option value="2">2格</option>
-          <option value="3" selected>3格</option>
-          <option value="4">4格</option>
-        </select>跨距
-      </div>
-      <div class="crow">控件
-        <select id="cpwidget">
-          <option value="dark">深色</option>
-          <option value="light">银色</option>
-          <option value="neon">霓虹</option>
-          <option value="retro">复古</option>
-          <option value="minimal">极简</option>
-        </select>
-      </div>
-      <div class="crow">强调 <input type="color" id="cpaccent" value="#ffb01f">
-        文字 <input type="color" id="cptext" value="#2b3138"></div>
-    </div>
-    <div id="ctrlhost"></div>
+    <div id="cpmnote">放置这个新组件时,会展开内部的全部组件与接线 —— 就像调用一个函数。</div>
   </aside>
 </div>
 

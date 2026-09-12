@@ -4,9 +4,9 @@
    电压约定:1 单位浮点 = 1V;音高 1V/oct;Gate 高 = +10V;旋钮 0~10V。
 
    装配顺序:组件定义注册 → 存档序列化挂接 → 工坊 / 侧栏 / 交互 /
-   工具条初始化 → 存档恢复(失败则载入演示音色)→ 主循环。 */
+   菜单栏初始化 → 存档恢复(失败则载入演示音色)→ 主循环。 */
 
-import { worldEl, setCellSizeListener, applyView, fitView } from './core/view.js';
+import { worldEl, applyView, fitView } from './core/view.js';
 import { setSerializer, LSKEY } from './core/save.js';
 import { serialize, loadSaved } from './core/serialize.js';
 import { getCtx, firstGesture } from './core/audio.js';
@@ -17,8 +17,8 @@ import { reflowActive } from './core/flow.js';
 import { selMod } from './core/selection.js';
 import { encapsulateSelected, dissolveComposite } from './core/composite.js';
 import { registerAllModules } from './modules/index.js';
-import { initStudio, syncStudioMetrics, studioPanel } from './workshop/studio.js';
-import { designs, initPlaceButton, refreshMine, onDesignsChanged, placeAtCenter, registerDesign } from './workshop/designs.js';
+import { initStudio } from './workshop/studio.js';
+import { designs, refreshMine, onDesignsChanged, placeAtCenter, registerDesign } from './workshop/designs.js';
 import { mkCustomDef, newCustomKey } from './workshop/custom-def.js';
 import { buildPalette } from './palette/index.js';
 import { initPointer } from './interactions/pointer.js';
@@ -46,7 +46,6 @@ function boot() {
 
   initEngine();
   initStudio();
-  initPlaceButton(() => studioPanel());
   buildPalette();
   refreshMine();
   onDesignsChanged(refreshMine);
@@ -55,7 +54,6 @@ function boot() {
   initContextMenu();
   initMenuBar();
   initHelp();
-  setCellSizeListener(syncStudioMetrics);
 
   worldEl.style.setProperty('--cellpx', state.cellPx + 'px');
   worldEl.style.setProperty('--k', 1);
@@ -73,10 +71,9 @@ function boot() {
     get ctx() { return getCtx(); },
     get mods() { return state.mods; },
     get cables() { return state.cables; },
-    get panel() { return studioPanel(); },
     add: (t, x, y) => createModule(t, x, y),
     connect: (a, ap, b, bp) => addCable(a, ap, b, bp),
-    /* 组件工坊:SYNTH.placeCustom(spec) 直接按规格放置自制组件 */
+    /* 组件工坊:SYNTH.placeCustom(spec) 直接按规格放置面板组件 */
     placeCustom: spec => {
       if (!spec || !spec.cells || !spec.cells.length) return null;
       const key = newCustomKey();

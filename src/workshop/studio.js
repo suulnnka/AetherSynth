@@ -1,181 +1,116 @@
-/* 组件工坊 · 面板宿主:实例化 CompactPanel,接线「＋控件」工具栏、
-   控件属性检查器、外观与尺寸设置。放置 / 更新按钮的语义(放置 or
-   更新画布上的组件)由 designs.js 决定,这里只负责设计台本身。 */
+/* 组件工坊面板:宏草稿。
+   在画布上右键组件 → 发送到这里收集;命名后「保存为新组件」:
+   画布上这组组件会化简成一个宏组件,同时定义存入左侧「我的组件」,
+   之后可随时放置新实例(相当于引入这一整组组件)。 */
 
-import { $, clamp } from '../core/utils.js';
+import { $ } from '../core/utils.js';
 import { state } from '../core/state.js';
 import { firstGesture } from '../core/audio.js';
+import { addCable } from '../core/cables.js';
+import { reflowActive } from '../core/flow.js';
 import { saveSoon } from '../core/save.js';
-import { CompactPanel } from './panel.js';
+import { captureMacroSpec, newMacroKey, registerMacroDef, instantiateMacro } from './macros.js';
+import { addMacroDesign } from './designs.js';
 import { toast } from '../ui/toast.js';
 
-let panel = null;
-let editMode = false;
-
-export function studioPanel() { return panel; }
-export function isStudioVisible() { return panel && !$('#ctrlpanel').classList.contains('hidden'); }
+const draft = [];   // 收集进草稿的组件 id
 
 export function initStudio() {
-  panel = new CompactPanel(document.getElementById('ctrlhost'), {
-    name: '我的组件', cols: 3, span: 3, cell: state.cellPx,
-    onChange: () => saveSoon(),
-    onCellSelect: id => syncInspector(id)
-  });
-  panel.onResize = syncStudioMetrics;
-  syncStudioMetrics();
-
-  // ＋控件:往设计里添加一个控制格
-  document.querySelectorAll('#cptoobar .cpadd').forEach(btn => btn.addEventListener('click', () => {
-    firstGesture();
-    if (panel.cellIds().length >= 16) { toast('一个组件最多 16 个控件'); return; }
-    const n = panel.cellIds().length + 1;
-    const seed = {
-      knob: { kind: 'knob', label: '旋钮' + n, min: 0, max: 10, value: 5 },
-      fader: { kind: 'fader', label: '推子' + n, min: 0, max: 10, value: 5 },
-      switch: { kind: 'switch', label: '开关' + n, value: false },
-      meter: { kind: 'meter', label: '电压表' + n }
-    }[btn.dataset.add];
-    panel.selectCell(panel.addCell(seed));
-  }));
-
-  // 控件属性检查器
-  $('#cpilabel').addEventListener('input', () => {
-    if (panel.selId) panel.updateCell(panel.selId, { label: $('#cpilabel').value });
-  });
-  const applyRange = () => {
-    if (!panel.selId) return;
-    let min = +$('#cpimin').value, max = +$('#cpimax').value;
-    if (!isFinite(min)) min = 0;
-    if (!isFinite(max)) max = 10;
-    if (max <= min) max = min + 1;
-    panel.updateCell(panel.selId, { min, max });
-  };
-  $('#cpimin').addEventListener('change', applyRange);
-  $('#cpimax').addEventListener('change', applyRange);
-  $('#cpinote').addEventListener('change', e => {
-    if (!panel.selId) return;
-    if (e.target.checked) panel.updateCell(panel.selId, {
-      note: true, min: 0, max: 1, steps: Array.from({ length: 13 }, (_, i) => i / 12)
-    });
-    else panel.updateCell(panel.selId, { note: false, steps: undefined });
-    syncInspector(panel.selId);
-  });
-  $('#cpinspectx').addEventListener('click', () => panel.selectCell(null));
-
-  // 外观与尺寸
-  $('#cpthemebtn').addEventListener('click', () => {
-    $('#cptheme').classList.toggle('hidden');
-    syncThemeControls(panel.getTheme());
-  });
-  [['cpbgtype', 'change'], ['cpbgc', 'input'], ['cpangle', 'input'], ['cpg1', 'input'],
-   ['cpg2', 'input'], ['cpg3', 'input'], ['cpg4', 'input'], ['cpimgurl', 'change'],
-   ['cpwidget', 'change'], ['cpaccent', 'input'], ['cptext', 'input'],
-   ['cpcols', 'change'], ['cpspan', 'change']]
-    .forEach(([id, ev]) => document.getElementById(id)
-      .addEventListener(ev, () => {
-        if (id === 'cpcols' || id === 'cpspan') applyPanelSizeFromControls();
-        else applyPanelThemeFromControls();
-      }));
-  document.getElementById('cpimgfile').addEventListener('change', e => {
-    const f = e.target.files[0];
-    if (!f) return;
-    const rd = new FileReader();
-    rd.onload = () => { $('#cpimgurl').value = rd.result; applyPanelThemeFromControls(); };
-    rd.readAsDataURL(f);
-    e.target.value = '';
-  });
+  $('#cpmsave').addEventListener('click', () => { firstGesture(); saveMacroDraft().catch(e => toast('保存失败:' + e.message)); });
+  renderDraft();
 }
+
+export function isStudioVisible() { return !$('#ctrlpanel').classList.contains('hidden'); }
 
 export function toggleStudio() {
-  const el = $('#ctrlpanel');
-  el.classList.toggle('hidden');
-  if (!el.classList.contains('hidden') && panel) panel.tick();
+  $('#ctrlpanel').classList.toggle('hidden');
 }
 
-export function ensureStudioVisible() {
-  if ($('#ctrlpanel').classList.contains('hidden')) toggleStudio();
+export function ensureStudioVisible() { $('#ctrlpanel').classList.remove('hidden'); }
+
+/** 右键画布组件:发送到宏草稿(组合 / 宏不能嵌套,禁止递归) */
+export function sendToWorkshop(mod) {
+  firstGesture();
+  if (mod.def.composite || mod.def.macro) { toast('组合 / 宏组件不能发送进宏(禁止递归)'); return; }
+  if (mod.parent) { toast('组合内部的组件不能直接发送,请先解体组合'); return; }
+  if (draft.includes(mod.id)) { toast('已在宏草稿中'); return; }
+  draft.push(mod.id);
+  ensureStudioVisible();
+  renderDraft();
+  toast('已发送到工坊(共 ' + draft.length + ' 个组件)');
 }
 
-/** 面板 / 预览随格距与设计尺寸变化 */
-export function syncStudioMetrics() {
-  if (!panel) return;
-  panel.setMetrics({ cell: state.cellPx });
-  const wpx = panel.cols * panel.span * state.cellPx + 18;
-  $('#ctrlpanel').style.width = wpx + 'px';
-  $('#ctrlpanel').style.flexBasis = wpx + 'px';
-}
-
-/* ---------------- 控件属性检查器 ---------------- */
-export function syncInspector(id) {
-  const box = $('#cpinspect');
-  const cfg = id ? panel.cellCfg(id) : null;
-  box.classList.toggle('hidden', !cfg);
-  if (!cfg) return;
-  $('#cpilabel').value = cfg.label || '';
-  const ranged = cfg.kind === 'knob' || cfg.kind === 'fader';
-  $('#cpirange').style.display = ranged ? 'flex' : 'none';
-  $('#cpinotel').style.display = cfg.kind === 'knob' ? '' : 'none';
-  if (ranged) { $('#cpimin').value = cfg.min ?? 0; $('#cpimax').value = cfg.max ?? 10; }
-  if (cfg.kind === 'knob') $('#cpinote').checked = !!cfg.note;
-}
-
-/* ---------------- 外观与尺寸设置 ---------------- */
-function currentPanelThemeFromControls() {
-  const type = $('#cpbgtype').value;
-  let bg;
-  if (type === 'gradient') {
-    bg = { type: 'gradient', angle: +$('#cpangle').value,
-           stops: [$('#cpg1').value, $('#cpg2').value, $('#cpg3').value, $('#cpg4').value] };
-  } else if (type === 'image') {
-    const url = $('#cpimgurl').value.trim();
-    bg = url ? { type: 'image', image: url } : { type: 'solid', color: '#f7f8fa' };
-  } else {
-    bg = { type: 'solid', color: $('#cpbgc').value };
+function renderDraft() {
+  const list = $('#cpmlist');
+  if (!list) return;
+  list.innerHTML = '';
+  const alive = [];
+  for (const id of draft) {
+    const m = state.mods.get(id);
+    if (!m) continue;                       // 已被删除的自动剔除
+    alive.push(id);
+    const it = document.createElement('div');
+    it.className = 'cpm-item';
+    it.innerHTML = `<span>${m.def.name}</span><span class="cpm-x" title="移出草稿">✕</span>`;
+    it.querySelector('.cpm-x').addEventListener('click', () => {
+      const i = draft.indexOf(id);
+      if (i >= 0) draft.splice(i, 1);
+      renderDraft();
+    });
+    list.appendChild(it);
   }
-  return { bg, widget: $('#cpwidget').value, accent: $('#cpaccent').value, text: $('#cptext').value };
+  draft.length = 0;
+  draft.push(...alive);
+  $('#cpmcount').textContent = draft.length ? '(' + draft.length + ')' : '';
+  $('#cpmempty').style.display = draft.length ? 'none' : '';
+  $('#cpmsave').style.opacity = draft.length ? 1 : 0.5;
 }
 
-export function syncThemeControls(t) {
-  const bg = t.bg || {};
-  const setV = (id, v) => { const e = document.getElementById(id); if (e) e.value = v; };
-  const setT = (id, cls, on) => { const e = document.getElementById(id); if (e) e.classList.toggle(cls, on); };
-  setV('cpbgtype', bg.type || 'solid');
-  setV('cpbgc', bg.color || '#f7f8fa');
-  setV('cpangle', bg.angle != null ? bg.angle : 135);
-  const st = bg.stops || ['#a1c4fd', '#c2e9fb', '#e2d4ac', '#d9c493'];
-  ['cpg1', 'cpg2', 'cpg3', 'cpg4'].forEach((id, i) => setV(id, st[i] || st[st.length - 1]));
-  setV('cpimgurl', bg.image || '');
-  setV('cpwidget', t.widget || 'dark');
-  setV('cpaccent', t.accent || '#ffb01f');
-  setV('cptext', t.text || '#2b3138');
-  setT('cpbgsolid', 'hidden', bg.type !== 'solid');
-  setT('cpbggrad', 'hidden', bg.type !== 'gradient');
-  setT('cpbgimg', 'hidden', bg.type !== 'image');
-  setV('cpcols', panel.cols);
-  setV('cpspan', panel.span);
-}
+/** 保存为新组件:捕获规格 → 注册定义 → 画布上化简为宏实例(外部接线原样重连) */
+async function saveMacroDraft() {
+  if (!draft.length) { toast('草稿是空的:先在画布上右键组件发送到这里'); return; }
+  const mods = draft.map(id => state.mods.get(id)).filter(Boolean);
+  if (mods.length !== draft.length) { toast('草稿中有组件已被删除'); renderDraft(); return; }
+  for (const m of mods)
+    if (m.def.composite || m.def.macro || m.parent) { toast('组合 / 宏不能嵌套(禁止递归)'); return; }
 
-function applyPanelThemeFromControls() {
-  panel.setTheme(currentPanelThemeFromControls());
+  const name = $('#cpmname').value.trim() || '宏组件';
+  const minX = Math.min(...mods.map(m => m.cx));
+  const minY = Math.min(...mods.map(m => m.cy));
+
+  // 1) 捕获规格(内部接线 / 对外接口),并记录边界接线(化简替换后重连)
+  const { spec, boundary } = captureMacroSpec(draft.slice(), state.mods, state.cables, name);
+  spec.name = name;
+
+  // 2) 注册定义并移除原成员(静默,接线已记录在案)
+  const key = newMacroKey();
+  registerMacroDef(key, spec);
+  addMacroDesign(key, spec);
+  for (const id of draft) removeQuiet(id);
+
+  // 3) 在原位置放置宏实例(展开内部组件),并重连边界接线
+  const box = await instantiateMacro(key, minX - 1, minY - 1);
+  for (const b of boundary) {
+    if (b.dir === 'in') addCable(b.far.m, b.far.p, box.id, b.extId, b.color);
+    else addCable(box.id, b.extId, b.far.m, b.far.p, b.color);
+  }
+  draft.length = 0;
+  renderDraft();
   saveSoon();
+  toast('已保存宏组件「' + name + '」并存入「我的组件」');
 }
 
-function applyPanelSizeFromControls() {
-  panel.setMetrics({ span: clamp(+$('#cpspan').value || 3, 2, 5), cols: clamp(+$('#cpcols').value || 3, 1, 6) });
-  syncStudioMetrics();
-  saveSoon();
-}
-
-/* ---------------- 放置 / 更新模式(designs.js 调用) ---------------- */
-export function setPlaceMode(editing) {
-  editMode = editing;
-  $('#cpplace').textContent = editing ? '⬆ 更新组件' : '⬇ 放置组件';
-}
-
-export function isEditMode() { return editMode; }
-
-/** 载入一个设计到面板(进入修改) */
-export function loadDesignIntoStudio(spec, vals) {
-  panel.loadSpec(JSON.parse(JSON.stringify(spec)), vals);
-  syncThemeControls(panel.getTheme());
+/** 静默移除一个组件(保存流程专用:接线由边界重连方案处理) */
+function removeQuiet(id) {
+  const m = state.mods.get(id);
+  if (!m) return;
+  [...state.cables.values()].filter(c => c.a.m === id || c.b.m === id).forEach(c => {
+    if (!c.midi) { try { c.aNode.disconnect(c.bNode); } catch (e) {} }
+    c.hit.remove(); c.wire.remove();
+    state.cables.delete(c.id);
+  });
+  m.dispose();
+  m.el.remove();
+  state.mods.delete(id);
+  reflowActive();
 }

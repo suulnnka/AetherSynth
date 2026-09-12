@@ -30,7 +30,8 @@ export function mkCompositeDef(key, ports, w, h) {
 }
 
 /** 组合外壳的 EXT 口直连内部子组件的对应口 */
-function wireComposite(mod) {
+/** 组合盒子:对外接口口 ↔ 内部成员端口 节点直连(重载后需重新执行) */
+export function wireComposite(mod) {
   for (const map of (mod.state.maps || [])) {
     const inner = state.mods.get(map.m);
     if (!inner) continue;
