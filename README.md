@@ -8,6 +8,12 @@
 
 **在线试用:<https://suulnnka.github.io/AetherSynth/>**
 
+## 界面速览
+
+「歌曲 → 穆格拆解 · Model D 分立搭棚」示例:三 VCO → 混音(含噪声)→ 滤波(CONTOUR 包络)→ VCA → 喇叭,音序器自动循环演奏。
+
+![穆格拆解 · Model D 分立搭棚](docs/model-d.png)
+
 ## 运行
 
 ```bash
