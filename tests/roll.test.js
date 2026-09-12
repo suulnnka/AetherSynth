@@ -5,17 +5,17 @@ import {
   rollActiveNote, roll
 } from '../src/modules/sequencer.js';
 
-test('rollKeyVolts:1V/oct,0V = C4(k=12)', () => {
-  assert.equal(rollKeyVolts(12), 0);        // C4
-  assert.equal(rollKeyVolts(0), -1);        // C3
-  assert.equal(rollKeyVolts(24), 1);        // C5
-  assert.ok(Math.abs(rollKeyVolts(13) - 1 / 12) < 1e-12);  // C#4
+test('rollKeyVolts:1V/oct,0V = C4(k=24)', () => {
+  assert.equal(rollKeyVolts(24), 0);        // C4
+  assert.equal(rollKeyVolts(12), -1);       // C3
+  assert.equal(rollKeyVolts(36), 1);        // C5
+  assert.ok(Math.abs(rollKeyVolts(25) - 1 / 12) < 1e-12);  // C#4
 });
 
-test('rollKeyMidi:C3=48 ~ C5=72', () => {
-  assert.equal(rollKeyMidi(0), 48);
-  assert.equal(rollKeyMidi(12), 60);
-  assert.equal(rollKeyMidi(ROLL_KEYS - 1), 72);
+test('rollKeyMidi:C2=36 ~ C6=84', () => {
+  assert.equal(rollKeyMidi(0), 36);
+  assert.equal(rollKeyMidi(24), 60);
+  assert.equal(rollKeyMidi(ROLL_KEYS - 1), 84);
 });
 
 test('rollIsBlack:黑键组 C#,D#,F#,G#,A#', () => {

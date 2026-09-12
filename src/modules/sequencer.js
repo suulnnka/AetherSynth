@@ -12,13 +12,13 @@ import { kit } from '../kit/index.js';
 import { saveSoon } from '../core/save.js';
 
 /* ---- 钢琴卷帘纯函数(可单测) ---- */
-export const ROLL_KEYS = 25;                                  // C3 ~ C5
-/** 键位 → 电压:1V/oct,0V = C4(k=12) */
-export const rollKeyVolts = k => (k - 12) / 12;
+export const ROLL_KEYS = 49;                                  // C2 ~ C6
+/** 键位 → 电压:1V/oct,0V = C4(k=24) */
+export const rollKeyVolts = k => (k - 24) / 12;
 /** 键位 → MIDI 音符号 */
-export const rollKeyMidi = k => 48 + k;
+export const rollKeyMidi = k => 36 + k;
 /** 是否黑键(用于卷帘行着色) */
-export const rollIsBlack = k => [1, 3, 6, 8, 10].includes((48 + k) % 12);
+export const rollIsBlack = k => [1, 3, 6, 8, 10].includes((36 + k) % 12);
 /** 一格(16 分音符)的时长秒数 */
 export const rollCellSec = bpm => 15 / bpm;
 /** pos(格,可为小数)处 sounding 的音符:取起始最晚的一个;无则 null */
@@ -165,14 +165,14 @@ export const seq = {
 
 /* 钢琴卷帘:D AW 式音符编辑器。
    ---------------------------------------------------------------------
-   左侧钢琴键 + 右侧时间网格(16 分音符格),音符可任意变长:
+   左侧钢琴键(C2~C6)+ 右侧时间网格(16 分音符格),音符可任意变长:
    一个音 1/4 拍(1 格),另一个音 1 拍(4 格)甚至整小节。
    点空白 = 画出音符(拖动可拉长),拖音符 = 移动,拖右缘 = 改长度,
    右键 = 删除。内置 BPM 时钟循环播放,输出 1V/oct CV + Gate + MIDI。
    PLAY 门(未接线默认播放),RST 上升沿回开头。 */
 export const roll = {
   id: 'roll', name: '钢琴卷帘', en: 'PIANO ROLL', cat: 'control', w: 24, h: 15,
-  desc: 'DAW 式钢琴卷帘音序器:左侧琴键 + 16 分音符网格,音符长度任意(1 格 = 1/4 拍,4 格 = 1 拍)。点空白画出音符并拖动拉长,拖音符移动,拖右缘改变时值,右键删除。内置 BPM 时钟循环播放,输出 1V/oct CV(0V = C4)+ Gate + MIDI。PLAY 门未接线默认播放,RST 上升沿回开头。',
+  desc: 'DAW 式钢琴卷帘音序器(C2~C6 四个八度):左侧琴键 + 16 分音符网格,音符长度任意(1 格 = 1/4 拍,4 格 = 1 拍)。点空白画出音符并拖动拉长,拖音符移动,拖右缘改变时值,右键删除。内置 BPM 时钟循环播放,输出 1V/oct CV(0V = C4)+ Gate + MIDI。PLAY 门未接线默认播放,RST 上升沿回开头。',
   ports: [
     { id: 'CV', dir: 'out', name: 'CV', desc: '音高电压 1V/oct(0V = C4)' },
     { id: 'GATE', dir: 'out', name: 'GATE', desc: '音符 Gate(门宽 % 可调)' },
@@ -348,7 +348,7 @@ export const roll = {
       c.fillRect(1, y, g.KEYW - 2, Math.max(1, g.rowH - 0.5));
       if (k % 12 === 0) {
         c.fillStyle = blk ? '#ddd' : '#333'; c.font = '7px monospace';
-        c.fillText('C' + (3 + Math.floor(k / 12)), 3, y + g.rowH - 0.5);
+        c.fillText('C' + (2 + Math.floor(k / 12)), 3, y + g.rowH - 0.5);
       }
     }
     // 拍号行
