@@ -22,7 +22,7 @@ function expandSteps(core, active) {
 }
 
 /** 旋律短语:[步, 半音(相对 C4), 长度步数] → 电压步进数组 */
-function phrase(notes, total = 128) {
+export function phrase(notes, total = 128) {
   const steps = new Array(Math.min(total, 128)).fill(null);   // null = 休止
   for (const [st, semi, len] of notes)
     for (let i = 0; i < len && st + i < steps.length; i++)
