@@ -9,7 +9,6 @@ export function updateStatus() {
   const sp = $('#stpower');
   sp.textContent = run ? '● 电源:运行中' : '● 电源:待机';
   sp.classList.toggle('on', run);
-  $('#power').classList.toggle('on', run);
   $('#stinfo').textContent =
     `模块 ${state.mods.size} · 线缆 ${state.cables.size} · ${(getCtx().sampleRate / 1000).toFixed(1)} kHz · 格距 ${state.cellPx}px`;
 }

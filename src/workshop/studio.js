@@ -24,8 +24,6 @@ export function initStudio() {
   panel.onResize = syncStudioMetrics;
   syncStudioMetrics();
 
-  $('#ctrlbtn').addEventListener('click', toggleStudio);
-
   // ＋控件:往设计里添加一个控制格
   document.querySelectorAll('#cptoobar .cpadd').forEach(btn => btn.addEventListener('click', () => {
     firstGesture();
@@ -91,7 +89,6 @@ export function initStudio() {
 export function toggleStudio() {
   const el = $('#ctrlpanel');
   el.classList.toggle('hidden');
-  $('#ctrlbtn').classList.toggle('on', !el.classList.contains('hidden'));
   if (!el.classList.contains('hidden') && panel) panel.tick();
 }
 

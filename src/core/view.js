@@ -13,7 +13,8 @@ export const cablesSvg = $('#cables');
 
 export function applyView() {
   worldEl.style.transform = `translate(${state.view.x}px,${state.view.y}px) scale(${state.view.s})`;
-  $('#zoomval').textContent = Math.round(state.view.s * 100) + '%';
+  const zv = $('#zoomval');
+  if (zv) zv.textContent = Math.round(state.view.s * 100) + '%';
 }
 
 export function screenToWorld(e) {

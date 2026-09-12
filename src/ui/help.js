@@ -11,7 +11,7 @@ export function initHelp() {
     content: $('#helpcontent'),
     width: 'min(680px, 92vw)'
   });
-  $('#help').addEventListener('click', () => win.toggle());
 }
 
-export function hideHelp() { if (win) win.close(); }
+/** 菜单「帮助 → 使用帮助」 */
+export function openHelp() { if (win) win.open(); }

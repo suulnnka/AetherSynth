@@ -22,37 +22,21 @@ body {
   display: flex; flex-direction: column; user-select: none;
 }
 
-/* ---------- 顶栏 ---------- */
-#bar {
-  height: 44px; flex: 0 0 44px; display: flex; align-items: center; gap: 6px;
-  padding: 0 10px; background: var(--panel); border-bottom: 1px solid var(--line);
-  z-index: 20;
-}
-.logo { font-weight: 800; letter-spacing: 1px; font-size: 15px; margin-right: 8px; color: #1f242a; }
-.logo b { color: var(--amber); }
-.logo em { font-style: normal; font-weight: 400; font-size: 11px; color: var(--dim); margin-left: 8px; }
+/* ---------- 通用按钮(顶栏已改为菜单栏,见 menubar.css) ---------- */
 .tbtn {
   background: #ffffff; color: var(--txt); border: 1px solid var(--line);
   border-radius: 6px; padding: 5px 10px; font-size: 12px; cursor: pointer;
 }
 .tbtn:hover { border-color: #9aa3ae; background: #f2f4f7; }
 .tbtn:active { transform: translateY(1px); }
-.tbtn.power { color: #c25b3a; border-color: #e5c4b6; min-width: 70px; }
-.tbtn.power.on { color: #178a4c; border-color: #a9d8bd; box-shadow: 0 0 8px rgba(30,180,100,.2) inset; }
 .tbtn.warn:hover { border-color: #d98a8a; color: #b03030; }
 .tbtn.primary {
   background: linear-gradient(160deg, #ffd97a, #f0b429); border-color: #d99a12;
   color: #5c4000; font-weight: 700; white-space: nowrap;
 }
 .tbtn.primary:hover { border-color: #b98a1d; }
-.tlabel { font-size: 12px; color: var(--dim); display: flex; align-items: center; gap: 6px; }
-.tlabel select {
-  background: #ffffff; color: var(--txt); border: 1px solid var(--line);
-  border-radius: 6px; padding: 4px 6px; font-size: 12px;
-}
-.sep { width: 1px; height: 20px; background: var(--line); margin: 0 4px; }
 .flex { flex: 1; }
-#zoomval { font-size: 12px; color: var(--dim); min-width: 42px; text-align: center; }
+
 /* ---------- 状态栏 / 弹层 ---------- */
 #status {
   height: 26px; flex: 0 0 26px; display: flex; align-items: center; gap: 18px;

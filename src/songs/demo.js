@@ -23,7 +23,6 @@ const DEMO_SPEC = {
 export function demoPatch() {
   clearAll();
   setCellSize(24);
-  document.querySelector('#cellsel').value = '24';
   const kb = createModule('keyboard', 2, 22);
   const kc = createModule('knob', 2, 16), kr = createModule('knob', 6, 16);
   const vco = createModule('vco', 4, 11), vcf = createModule('vcf', 16, 11);

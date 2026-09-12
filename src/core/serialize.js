@@ -42,7 +42,6 @@ export function deserialize(data) {
   // 兼容旧版 mm 补丁:6mm≈24px,4/5/8mm 就近映射
   const cell = data.cell || { 4: 16, 5: 20, 6: 24, 8: 32 }[data.cellMM] || 24;
   setCellSize(cell);
-  $('#cellsel').value = String(cell);
   // 恢复自制组件设计(先于模块:模块按 key 引用这些定义)
   designs.length = 0;
   exitEditMode();

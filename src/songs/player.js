@@ -1,6 +1,5 @@
 /* 示例歌曲搭棚:把一首歌构建为完整的多音轨模块补丁 */
 
-import { el, $ } from '../core/utils.js';
 import { firstGesture, getCtx } from '../core/audio.js';
 import { createModule } from '../core/module.js';
 import { addCable } from '../core/cables.js';
@@ -105,14 +104,3 @@ export function loadSong(id) {
   toast('▶ ' + song.name + ' — ' + song.bpm + ' BPM(原创示例曲)');
 }
 
-/** 顶栏「歌曲」下拉框 */
-export function initSongSelect() {
-  for (const s of SONGS) {
-    const o = el('option', '', $('#songsel'));
-    o.value = s.id; o.textContent = s.name;
-  }
-  $('#songsel').addEventListener('change', e => {
-    if (e.target.value) { firstGesture(); loadSong(e.target.value); }
-    e.target.value = '';
-  });
-}

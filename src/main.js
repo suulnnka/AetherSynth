@@ -24,9 +24,8 @@ import { buildPalette } from './palette/index.js';
 import { initPointer } from './interactions/pointer.js';
 import { initKeyboard } from './interactions/keys.js';
 import { initContextMenu } from './interactions/context.js';
-import { initToolbar } from './ui/toolbar.js';
+import { initMenuBar } from './ui/menubar.js';
 import { initHelp } from './ui/help.js';
-import { initSongSelect } from './songs/player.js';
 import { demoPatch } from './songs/demo.js';
 import { updateStatus, startStatusLoop } from './ui/statusbar.js';
 import { startRafLoop } from './core/loop.js';
@@ -54,9 +53,8 @@ function boot() {
   initPointer();
   initKeyboard();
   initContextMenu();
-  initToolbar();
+  initMenuBar();
   initHelp();
-  initSongSelect();
   setCellSizeListener(syncStudioMetrics);
 
   worldEl.style.setProperty('--cellpx', state.cellPx + 'px');

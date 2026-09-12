@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>GridMod · 网格模块减法合成器</title>
 <link rel="stylesheet" href="styles/base.css">
+<link rel="stylesheet" href="styles/menubar.css">
 <link rel="stylesheet" href="styles/palette.css">
 <link rel="stylesheet" href="styles/canvas.css">
 <link rel="stylesheet" href="styles/widgets.css">
@@ -12,54 +13,10 @@
 <link rel="stylesheet" href="styles/window.css">
 </head>
 <body>
-<header id="bar">
-  <div class="logo">GRID<b>MOD</b><em>网格模块减法合成器</em></div>
-  <button id="power" class="tbtn power" title="启动 / 停止音频引擎">⏻ 电源</button>
-  <div class="sep"></div>
-  <label class="tlabel">格距
-    <select id="cellsel" title="每格的屏幕像素(所有组件与接口以此为基准对齐)">
-      <option value="16">细 16</option>
-      <option value="20">中 20</option>
-      <option value="24" selected>宽 24</option>
-      <option value="32">特宽 32</option>
-    </select>
-  </label>
-  <label class="tlabel">采样率
-    <select id="ratesel" title="音频引擎采样率(切换会重建引擎,当前补丁原样保留)">
-      <option value="16000">16 kHz</option>
-      <option value="32000">32 kHz</option>
-      <option value="44100">44.1 kHz</option>
-      <option value="48000">48 kHz</option>
-      <option value="96000" selected>96 kHz</option>
-    </select>
-  </label>
-  <div class="sep"></div>
-  <button class="tbtn" id="zoomout" title="缩小">−</button>
-  <span id="zoomval">100%</span>
-  <button class="tbtn" id="zoomin" title="放大">＋</button>
-  <button class="tbtn" id="zoomfit" title="缩放到全部组件">适应</button>
-  <div class="sep"></div>
-  <button class="tbtn" id="demo" title="载入演示音色">演示音色</button>
-  <label class="tlabel">歌曲
-    <select id="songsel" title="内置示例歌曲(原创,多音轨)"><option value="">选择…</option></select>
-  </label>
-  <button class="tbtn" id="ctrlbtn" title="打开 / 关闭 组件工坊(设计并放置个性化自制组件)">工坊</button>
-  <button class="tbtn" id="groupbtn" title="把 Shift 多选的组件封装为一个组合模块(可嵌套)">封装</button>
-  <button class="tbtn" id="export" title="导出补丁 JSON">导出</button>
-  <button class="tbtn" id="importb" title="导入补丁 JSON">导入</button>
-  <button class="tbtn warn" id="clear" title="清空画布">清空</button>
-  <div class="flex"></div>
-  <button class="tbtn" id="help">? 帮助</button>
-  <input type="file" id="filein" accept=".json,application/json" hidden>
-</header>
+<nav id="menubar"></nav>
 
 <div id="main">
   <aside id="palette">
-    <div class="pnote">
-      组件本身<b>没有任何开关 / 旋钮</b>——<br>
-      旋钮、开关都是独立组件,通过 <b>3.5mm</b> 接口用线缆接入。<br>
-      点击组件即可放到画布上;想要自己的面板,用工具栏<b>「工坊」</b>造一个。
-    </div>
     <div id="palmine"></div>
   </aside>
   <div id="viewport">
@@ -178,6 +135,8 @@
         <li>支持 Web MIDI:插入 MIDI 键盘后,「键盘」组件自动接收(浏览器询问权限时允许即可)。</li>
       </ul>
     </div>
+<input type="file" id="filein" accept=".json,application/json" hidden>
+
 <script type="module" src="src/main.js"></script>
 </body>
 </html>
