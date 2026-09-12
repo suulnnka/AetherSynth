@@ -13,6 +13,8 @@ import { firstGesture } from '../core/audio.js';
 import { mkCustomDef } from './custom-def.js';
 import { confirmDialog } from '../ui/window.js';
 import { toast } from '../ui/toast.js';
+import { startPaletteDrag } from '../palette/index.js';
+import { t } from '../core/i18n.js';
 
 export const designs = [];               // [{ key, spec }]
 const changeListeners = new Set();
@@ -115,12 +117,21 @@ export function refreshMine() {
     it.className = 'pitem g-mine';
     it.innerHTML = `<span>${escHtml(d.spec.name)} <small style="opacity:.55">CUSTOM</small></span>` +
       `<span class="psz">${def ? def.w + '×' + (Math.round(def.h * 10) / 10) + ' 格' : ''}</span>`;
-    it.title = '点击放置「' + d.spec.name + '」· 右键删除该设计';
-    it.addEventListener('click', () => {
+    it.title = t('拖拽或点击放置「', 'Drag or click to place "') + d.spec.name + t('」· 右键删除该设计', '" · right-click to delete the design');
+    it.addEventListener('pointerdown', e => {
+      if (e.button !== 0) return;
+      e.preventDefault();
       firstGesture();
       if (!DEFS[d.key]) mkCustomDef(d.key, d.spec);
-      placeAtCenter(d.key);
-      toast('已放置:' + d.spec.name);
+      const def = DEFS[d.key];
+      const vals = {};
+      for (const c of d.spec.cells) if (c.value !== undefined) vals[c.id] = c.value;
+      startPaletteDrag(e, def, d.spec.name, (cx, cy) => {
+        const m = createModule(d.key, cx, cy, null, Object.keys(vals).length ? { vals } : undefined);
+        selMod(m.id);
+        toast(t('已放置:', 'Placed: ') + d.spec.name);
+        saveSoon();
+      });
     });
     it.addEventListener('contextmenu', async e => {
       e.preventDefault(); e.stopPropagation();

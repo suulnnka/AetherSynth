@@ -12,6 +12,7 @@
   display: flex; justify-content: space-between; align-items: baseline;
   background: #ffffff; border: 1px solid var(--line); border-left-width: 3px;
   border-radius: 6px; padding: 6px 8px; margin-bottom: 5px; cursor: pointer; font-size: 12.5px;
+  touch-action: none; user-select: none;
 }
 .pitem:hover { border-color: #8d97a3; background: #f4f6f9; }
 .pitem .psz { font-size: 10px; color: var(--dim); }
@@ -19,3 +20,14 @@
 .g-source  { border-left-color: var(--c-source);  } .pgroup.g-source  { color: var(--c-source); }
 .g-process { border-left-color: var(--c-process); } .pgroup.g-process { color: var(--c-process); }
 .g-output  { border-left-color: var(--c-output);  } .pgroup.g-output  { color: var(--c-output); }
+
+/* 拖拽鬼影:跟随鼠标的模块占位预览(固定定位,永不拦截指针) */
+.pal-ghost {
+  position: fixed; z-index: 98; transform: translate(-50%, -50%); pointer-events: none;
+  border: 2px dashed rgba(125,200,255,.9); background: rgba(125,200,255,.10);
+  border-radius: 6px; display: flex; align-items: center; justify-content: center;
+  opacity: .5; color: #eaf6ff; font: 11px monospace; text-shadow: 0 1px 3px #000;
+}
+.pal-ghost.ok {
+  border-color: rgba(125,255,176,.95); background: rgba(125,255,176,.10); opacity: 1;
+}
