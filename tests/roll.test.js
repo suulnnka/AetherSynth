@@ -60,5 +60,5 @@ test('roll:默认状态为 2 小节 / 120BPM / 门宽 90%', () => {
 
 test('roll:变长音符网格为 16 格/小节(1 格 = 1/4 拍,4 格 = 1 拍)', () => {
   assert.equal(roll.state().bars * 16, 32);   // 默认两小节 32 格
-  assert.equal(4 * 16, 64);                   // 4 小节上限 64 格
+  assert.equal(roll.maxCell.call({ state: { bars: 16 } }), 256);  // 上限 16 小节 256 格
 });

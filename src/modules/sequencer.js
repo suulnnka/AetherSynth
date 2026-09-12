@@ -172,7 +172,7 @@ export const seq = {
    PLAY 门(未接线默认播放),RST 上升沿回开头。 */
 export const roll = {
   id: 'roll', name: '钢琴卷帘', en: 'PIANO ROLL', cat: 'control', w: 24, h: 15,
-  desc: 'DAW 式钢琴卷帘音序器(C2~C6 四个八度):左侧琴键 + 16 分音符网格,音符长度任意(1 格 = 1/4 拍,4 格 = 1 拍)。点空白画出音符并拖动拉长,拖音符移动,拖右缘改变时值,右键删除。内置 BPM 时钟循环播放,输出 1V/oct CV(0V = C4)+ Gate + MIDI。PLAY 门未接线默认播放,RST 上升沿回开头。',
+  desc: 'DAW 式钢琴卷帘音序器(C2~C6 四个八度,1~16 小节):左侧琴键 + 16 分音符网格,音符长度任意(1 格 = 1/4 拍,4 格 = 1 拍)。点空白画出音符并拖动拉长,拖音符移动,拖右缘改变时值,右键删除。内置 BPM 时钟循环播放,输出 1V/oct CV(0V = C4)+ Gate + MIDI。PLAY 门未接线默认播放,RST 上升沿回开头。',
   ports: [
     { id: 'CV', dir: 'out', name: 'CV', desc: '音高电压 1V/oct(0V = C4)' },
     { id: 'GATE', dir: 'out', name: 'GATE', desc: '音符 Gate(门宽 % 可调)' },
@@ -185,9 +185,9 @@ export const roll = {
     // 恢复并清洗音符(纯数据,直接序列化)
     this.notes = (Array.isArray(this.state.notes) ? this.state.notes : []).filter(n =>
       n && Number.isFinite(n.c) && Number.isFinite(n.k) && Number.isFinite(n.l)).map(n => ({
-        c: clamp(Math.round(n.c), 0, 63),
+        c: clamp(Math.round(n.c), 0, this.maxCell() - 1),
         k: clamp(Math.round(n.k), 0, ROLL_KEYS - 1),
-        l: clamp(Math.round(n.l) || 1, 1, 64),
+        l: clamp(Math.round(n.l) || 1, 1, this.maxCell()),
         v: clamp(Math.round(n.v ?? 8), 1, 10)
       }));
     this.state.notes = this.notes;
@@ -219,14 +219,16 @@ export const roll = {
       this._paint = false; this._drag = null;
     });
     kit.knob(this, { parent: knobRow, key: 'bpm', label: 'BPM', min: 40, max: 240, value: this.state.bpm, unit: '' });
-    kit.knob(this, { parent: knobRow, key: 'bars', label: '小节', min: 1, max: 4, value: this.state.bars, unit: '', int: true });
+    kit.knob(this, { parent: knobRow, key: 'bars', label: '小节', min: 1, max: 16, value: this.state.bars, unit: '', int: true });
     kit.knob(this, { parent: knobRow, key: 'gate', label: '门宽 %', min: 10, max: 100, value: this.state.gate, unit: '' });
   },
+  /** 小节数(1~16)与总格数:16 格 = 1 小节 */
+  maxCell() { return clamp(Math.round(this.state.bars ?? 2), 1, 16) * 16; },
   /** 画布几何:左侧琴键列 + 顶部拍号线 + 网格区 */
   geom() {
     const s = this.scr, W = s.w, H = s.h;
     const KEYW = 20, HEAD = 9;
-    const cells = this.state.bars * 16;
+    const cells = this.maxCell();
     const gw = W - KEYW - 1, gh = H - HEAD - 1;
     return { W, H, KEYW, HEAD, cells, gw, gh, gx: KEYW + 1, gy: HEAD + 1,
       cellW: gw / cells, rowH: gh / ROLL_KEYS };
@@ -290,7 +292,7 @@ export const roll = {
     else if (!pv && this.playing) this._stop(t);
     if (this.playing && this.edge('RST') === 1) { this._t0 = t; this._cur = null; }
     if (this.playing) {
-      const loop = this.state.bars * 16, cs = rollCellSec(this.state.bpm);
+      const loop = this.maxCell(), cs = rollCellSec(this.state.bpm);
       const pos = ((t - this._t0) / cs) % loop;
       const cur = rollActiveNote(this.notes, pos);
       if (cur !== this._cur) {
@@ -321,11 +323,14 @@ export const roll = {
       c.fillStyle = rollIsBlack(k) ? 'rgba(255,255,255,.030)' : 'rgba(255,255,255,.065)';
       c.fillRect(g.gx, y, g.gw, Math.max(1, g.rowH - 0.5));
     }
-    // 竖线:格(淡)/ 拍(中)/ 小节(亮)
+    // 竖线:格(淡)/ 拍(中)/ 小节(亮);高倍小节下过密的线自动省略
     for (let i = 0; i <= g.cells; i++) {
+      const bar = i % 16 === 0, beat = i % 4 === 0;
+      if (!bar && g.cellW < 0.9) continue;
+      if (!beat && g.cellW < 2) continue;
       const x = g.gx + i * g.cellW;
-      c.strokeStyle = i % 16 === 0 ? 'rgba(255,255,255,.30)'
-        : i % 4 === 0 ? 'rgba(255,255,255,.15)' : 'rgba(255,255,255,.06)';
+      c.strokeStyle = bar ? 'rgba(255,255,255,.30)'
+        : beat ? 'rgba(255,255,255,.15)' : 'rgba(255,255,255,.06)';
       c.beginPath(); c.moveTo(x, g.gy); c.lineTo(x, g.gy + g.gh); c.stroke();
     }
     // 音符块(右缘留亮边提示可拉长)
@@ -351,10 +356,11 @@ export const roll = {
         c.fillText('C' + (2 + Math.floor(k / 12)), 3, y + g.rowH - 0.5);
       }
     }
-    // 拍号行
+    // 拍号行:低倍小节标拍数,高倍小节标小节数
     c.fillStyle = '#66707c'; c.font = '7px monospace';
-    for (let b = 0; b < g.cells; b += 4)
-      c.fillText(String(b / 4 + 1), g.gx + b * g.cellW + 1, g.HEAD - 1);
+    const step = g.cells <= 64 ? 4 : 16;
+    for (let b = 0; b < g.cells; b += step)
+      c.fillText(String(b / step + 1), g.gx + b * g.cellW + 1, g.HEAD - 1);
     // 播放头
     if (pos != null) {
       const x = g.gx + pos * g.cellW;

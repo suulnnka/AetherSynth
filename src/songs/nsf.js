@@ -1,15 +1,20 @@
-/* NSF 转谱示例:四轨完整还原一段 NES chiptrace(16 小节循环,100 BPM)。
+/* NSF 转谱示例:四轨完整还原一段 NES chiptrace 的 64 小节全曲(100 BPM)。
    ---------------------------------------------------------------------
    记谱全部存在钢琴卷帘里(音符可变长,故不用步进音序器):
-     每轨 4 个卷帘 = 4 段 × 4 小节(卷帘单实例上限 4 小节)。
-   段落切换的搭棚:
-     时钟(8 分音符脉冲)→ 512 步音序器只当「段选器」用:每段 128 步
-     依次输出 0 / 2.5 / 5 / 7.5V,送给 4 个选择器;段选器把 +10V 只接
-     在自己的通道上,于是任一时刻只有当前段的 4 个卷帘收到 PLAY 门。
-     三条旋律轨各有 1 个选择器,把「当前段卷帘」的 CV 切给音色链
+     原曲本体为 16 小节循环;全曲按标准曲式编为 4 个乐段 × 16 小节,
+     每轨 4 个卷帘各装一个乐段(卷帘容量 1~16 小节):
+       乐段 1 引子 8 小节(贝斯+镲)→ 主题前半
+       乐段 2 主题后半 → 主题前半
+       乐段 3 Breakdown 8 小节(旋律休止)→ 旋律回归
+       乐段 4 主题后半 → 末句重复 → 终止长音
+   乐段切换的搭棚:
+     时钟(8 分音符脉冲)→ 512 步音序器只当「乐段选择器」用:每乐段
+     128 步依次输出 0 / 2.5 / 5 / 7.5V,送给 4 个选择器;段选器把 +10V
+     只接在自己的通道上,于是任一时刻只有当前乐段的 4 个卷帘收到 PLAY 门。
+     三条旋律轨各有 1 个选择器,把「当前乐段卷帘」的 CV 切给音色链
      (停着的卷帘 CV 保持旧值,不能直接并联;GATE 停止时归 0,可直接并联)。
    音色:GATE 直推 VCA(NES 无音量包络,门开即响),方波主音 / 方波
-   和声 / 三角波贝斯,噪声镲直接由 GATE 触发。数据见 ./nsf-data.js。 */
+   和声 / 三角波,噪声镲直接由 GATE 触发。数据见 ./nsf-data.js。 */
 
 import { firstGesture, getCtx } from '../core/audio.js';
 import { createModule } from '../core/module.js';
@@ -23,7 +28,7 @@ const MIX_CH = ['A', 'B', 'C'];
 
 export const NSF_DEMO = {
   id: 'nsf-1',
-  name: 'NSF 转谱 · 四轨还原(16 小节循环 / 100 BPM)',
+  name: 'NSF 转谱 · 四轨全曲(64 小节 / 100 BPM)',
   build: () => buildNsfSong()
 };
 
@@ -33,7 +38,7 @@ export function buildNsfSong() {
   const c0 = getCtx();
   if (c0.state !== 'running') c0.resume();
 
-  /* ---- 段落导引:时钟(8 分)→ 段选音序器(0/2.5/5/7.5V)---- */
+  /* ---- 乐段导引:时钟(8 分)→ 段选音序器(0/2.5/5/7.5V)---- */
   const STEP_V = [0, 2.5, 5, 7.5];
   const clk = createModule('clk', 0, 0, null, { bpm: 200, duty: 50 });
   const cond = createModule('seq', 7, 0, null, {
@@ -43,7 +48,7 @@ export function buildNsfSong() {
   const v10 = createModule('knob', 28, 1, null, { v: 10 });
   addCable(clk.id, 'OUT', cond.id, 'CLK');
 
-  /* ---- 段选器 ×4:任一时刻只有当前段的卷帘拿到 PLAY 门 ---- */
+  /* ---- 段选器 ×4:任一时刻只有当前乐段的卷帘拿到 PLAY 门 ---- */
   const play = [];
   for (let s = 0; s < 4; s++) {
     const sel = createModule('sel', 31 + s * 11, 0);
@@ -52,7 +57,7 @@ export function buildNsfSong() {
     play.push(sel);
   }
 
-  /* ---- 四轨 × 4 段钢琴卷帘(行 = 段,列 = 轨)---- */
+  /* ---- 四轨 × 4 乐段钢琴卷帘(行 = 乐段,列 = 轨)---- */
   const X = [0, 27, 54, 81], Y = [8, 25, 42, 59];
   const rolls = [[], [], [], []];          // rolls[轨][段]
   const KEYS = ['p1', 'p2', 'tri', 'noi'];
@@ -60,7 +65,7 @@ export function buildNsfSong() {
     for (let s = 0; s < 4; s++) {
       const r = createModule('roll', X[t], Y[s], null, {
         notes: NSF_TRACKS[KEYS[t]][s].map(([c, k, l, v]) => ({ c, k, l, v })),
-        bpm: 100, bars: 4, gate: 80
+        bpm: 100, bars: 16, gate: 80
       });
       addCable(play[s].id, 'OUT', r.id, 'PLAY');
       rolls[t].push(r);
@@ -98,5 +103,5 @@ export function buildNsfSong() {
   addCable(mix2.id, 'OUT', scope.id, 'IN');
 
   fitView();
-  toast('NSF 转谱:四轨 × 4 段钢琴卷帘,段选器自动轮换(16 小节循环,100 BPM)');
+  toast('NSF 转谱:四轨 × 4 乐段(每条卷帘 16 小节)钢琴卷帘,全曲 64 小节自动轮换,100 BPM');
 }
