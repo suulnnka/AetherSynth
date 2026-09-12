@@ -18,10 +18,11 @@ export function keys(mod) {
     self._keys.set(n, k);
     k.addEventListener('pointerdown', e => {
       e.stopPropagation();
+      k.classList.add('pressed');        // 所有键盘统一按压反馈
       const r = k.getBoundingClientRect();
       const vel = 40 + Math.round(87 * Math.max(0, Math.min(1, (e.clientY - r.top) / r.height)));
       self.noteOn(n, vel);
-      const up = () => { self.noteOff(n); window.removeEventListener('pointerup', up); };
+      const up = () => { self.noteOff(n); k.classList.remove('pressed'); window.removeEventListener('pointerup', up); };
       window.addEventListener('pointerup', up);
     });
   };

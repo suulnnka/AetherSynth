@@ -50,8 +50,9 @@ export function findCable(am, ap, bm, bp) {
   return null;
 }
 
-/** 输出口 → 输入口 接线(方向自动纠正);重复接线返回已有线缆 */
-export function addCable(am, ap, bm, bp, color) {
+/** 输出口 → 输入口 接线(方向自动纠正);重复接线返回已有线缆。
+    opts.quiet:存档恢复等场景不弹提示 */
+export function addCable(am, ap, bm, bp, color, opts = {}) {
   let A = state.mods.get(am), B = state.mods.get(bm);
   if (!A || !B) return null;
   let pa = A.def.portsById[ap], pb = B.def.portsById[bp];
@@ -73,6 +74,9 @@ export function addCable(am, ap, bm, bp, color) {
     c.aNode = A.outs[ap]; c.bNode = B.ins[bp];
     if (!c.aNode || !c.bNode) return null;
     c.aNode.connect(c.bNode);
+  } else if (!opts.quiet && typeof B.midiIn !== 'function') {
+    // MIDI 消息线只投递给实现了 midiIn 的模块,否则静默无声 —— 接线当下就提醒
+    toast(`「${B.def.name}」不支持 MIDI 输入:请改接 ${A.def.name} 的 VOCT / GATE 电压口,或经 MIDI-CV 转换`);
   }
   c.hit = mkPath('hit', 'rgba(0,0,0,0)', 14);
   c.hit.dataset.c = c.id;

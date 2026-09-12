@@ -15,7 +15,7 @@ export const PORT_TYPES = {
   'kick:TRIG': 'gate', 'kick:TUNE': 'cv',
   'snare:TRIG': 'gate', 'snare:TUNE': 'cv',
   'hat:TRIG': 'gate',
-  'keyboard:MIDI': 'midi', 'seq:MIDI': 'midi', 'midicv:MIDI': 'midi',
+  'keyboard:MIDI': 'midi', 'seq:MIDI': 'midi', 'midicv:MIDI': 'midi', 'minimoog:MIDI': 'midi',
   'midicv:VOCT': 'cv', 'midicv:GATE': 'gate', 'midicv:VEL': 'cv',
   'switch:GATE': 'gate',
   'keyboard:VOCT': 'cv', 'keyboard:GATE': 'gate', 'keyboard:VEL': 'cv',

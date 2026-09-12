@@ -70,7 +70,7 @@ export function deserialize(data) {
     createModule(md.t, md.x, md.y, md.i, md.s);
   });
   (data.cables || []).forEach(cd => {
-    if (addCable(cd.a[0], cd.a[1], cd.b[0], cd.b[1], cd.c)) return;
+    if (addCable(cd.a[0], cd.a[1], cd.b[0], cd.b[1], cd.c, { quiet: true })) return;
     // 旧版补丁兼容:喇叭单声道 IN 口拆分为 L / R 双接线
     const m = state.mods.get(cd.b[0]);
     if (m && m.def.id === 'spk' && cd.b[1] === 'IN') {

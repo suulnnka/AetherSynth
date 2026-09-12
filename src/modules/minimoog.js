@@ -19,7 +19,8 @@ export const minimoog = {
   desc: '单音合成器(向 Model D 致敬):三振荡器 + 噪声 → 混音器 → 24dB 低通(EMPHASIS 共振 / CONTOUR 包络调制)→ 双 ADSR(滤波 / 响度)→ 输出;OSC3 可切 LFO 作调制源,GLIDE 滑音。内置键盘:电脑键 A W S E D… 演奏,支持外部 GATE / V-OCT。',
   ports: [
     { id: 'OUT', dir: 'out', name: 'OUT', desc: '合成器输出(单声道)' },
-    { id: 'GATE', dir: 'in', name: 'GATE', desc: '外部门输入:≥0.5V 触发音符(如音序器 GATE)' },
+    { id: 'MIDI', dir: 'in', name: 'MIDI', desc: 'MIDI 音符输入:可直接接 MIDI键盘 / 音序器的 MIDI 口' },
+    { id: 'GATE', dir: 'in', name: 'GATE', desc: '外部门输入:≥0.5V 触发音符(如音序器 GATE,音高取内置键盘最后音符)' },
     { id: 'V/OCT', dir: 'in', name: 'V/OCT', desc: '外部音高 1V/oct(叠加在内置键盘之上)' }
   ],
   state: () => ({
@@ -78,7 +79,13 @@ export const minimoog = {
     this.modD.connect(this.oscs[2].detune);
     this.mon('GATE'); this.mon('V/OCT');
   },
+  /* MIDI 口不走 Web Audio 节点,无需 mon */
   /* 音符 */
+  /** MIDI 输入:直接接 MIDI键盘 / 音序器的 MIDI 口 */
+  midiIn(msg) {
+    if (msg.type === 'noteon') this.noteOn(msg.note, msg.vel ?? 100);
+    else if (msg.type === 'noteoff') this.noteOff(msg.note);
+  },
   noteOn(n, vel = 100) {
     const f = 440 * Math.pow(2, (n - 69) / 12);
     this.held = this.held.filter(x => x.n !== n);
