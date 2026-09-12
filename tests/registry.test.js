@@ -8,10 +8,10 @@ beforeEach(() => {
   DEFS_ORDER.length = 0;
 });
 
-test('registerAllModules:注册全部 47 个内置组件并排版接口', () => {
+test('registerAllModules:注册全部 48 个内置组件并排版接口', () => {
   registerAllModules();
-  assert.equal(DEFS_ORDER.length, 47);
-  assert.equal(Object.keys(DEFS).length, 47);
+  assert.equal(DEFS_ORDER.length, 48);
+  assert.equal(Object.keys(DEFS).length, 48);
   for (const id of MODULE_ORDER) {
     const d = DEFS[id];
     assert.ok(d, '缺少组件:' + id);
@@ -49,6 +49,18 @@ test('音频效果器与立体声喇叭:端口类型正确', () => {
   assert.equal(DEFS.sred.portsById.RATE.type, 'cv');
   assert.deepEqual(DEFS.spk.ports.map(p => p.id), ['L', 'R']);
   assert.equal(DEFS.spk.portsById.L.type, 'audio');
+});
+
+test('时钟与相位同步:clk / SYNC / DUTY / PUL 端口就位', () => {
+  registerAllModules();
+  assert.equal(DEFS.clk.portsById.OUT.type, 'gate');
+  assert.equal(DEFS.clk.portsById.RST.type, 'gate');
+  for (const id of ['vco', 'fm', 'lfo']) {
+    assert.equal(DEFS[id].portsById.SYNC.type, 'gate', id + ' 应有 SYNC 同步口');
+  }
+  assert.equal(DEFS.vco.portsById.PUL.dir, 'out');
+  assert.equal(DEFS.vco.portsById.DUTY.type, 'cv');
+  assert.equal(DEFS.lfo.portsById.DUTY.type, 'cv');
 });
 
 test('FLOW:三个效果器都有信号来路(休眠判定可用)', async () => {

@@ -1,4 +1,7 @@
 /* ---------- 旋钮组件 ---------- */
+.krow { display: flex; height: 100%; align-items: stretch; justify-content: space-evenly; gap: 4px; }
+.krow .knobwrap { justify-content: center; }
+.klabel { font-size: 9px; color: var(--dim); white-space: nowrap; }
 .knobwrap { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; gap: 3px; }
 .knob {
   width: 34px; height: 34px; border-radius: 50%; position: relative; cursor: ns-resize;

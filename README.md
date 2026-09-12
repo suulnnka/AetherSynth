@@ -45,11 +45,13 @@ npm test         # 运行单元测试(Node 内置 test runner,零依赖)
 │   │   ├── controls.js   旋钮 / 推子 / 触控板 / 开关 …
 │   │   ├── keyboard.js   MIDI 键盘
 │   │   ├── sequencer.js  MIDI 音序器
-│   │   ├── sources.js    VCO / FM / LFO / 噪声 / 麦克风
+│   │   ├── sources.js    VCO / FM / LFO(SYNC 相位硬同步、空占比)/ 噪声 / 麦克风
+│   │   ├── clock.js      时钟(BPM / 空占比 / RST 复位)
 │   │   ├── drums.js      底鼓 / 军鼓 / 踩镲
 │   │   ├── processors.js VCF / VCA / ADSR / 延迟 / 量化 / S&H …
+│   │   ├── effects.js    压限器 / 比特量化 / 重采样
 │   │   ├── math.js       数字运算组件工厂(加 / 减 / 乘 / 除 / 选择器…)
-│   │   ├── outputs.js    喇叭 / 示波器 / XY / 录音机
+│   │   ├── outputs.js    立体声喇叭 / 示波器 / XY / 录音机
 │   │   └── index.js      总装:注册 + 侧栏顺序
 │   ├── workshop/         组件工坊(创建个性化新组件 UI)
 │   │   ├── panel.js        CompactPanel 设计面板(可独立复用)

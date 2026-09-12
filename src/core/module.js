@@ -149,6 +149,19 @@ export class Mod {
     return 0;
   }
 
+  /** 相位同步(硬同步):停止 this.oscs 里的旧振荡器,用 this._spawn
+      工厂数组逐个重建 —— 新振荡器从相位 0 开始,音高 / 波形 / 调制
+      路由由工厂闭包原样恢复。约定:build 里把每个振荡器的创建函数
+      push 进 this._spawn 并立即调用一次,产出 push 进 this.oscs。
+      tick 里检测 SYNC 上升沿后调用本方法。 */
+  restartPhase(t) {
+    t = t ?? getCtx().currentTime;
+    const old = this.oscs || [];
+    this.oscs = [];
+    old.forEach(o => { try { o.stop(t); } catch (e) {} });   // 先停旧波,避免新旧叠加
+    for (const spawn of this._spawn || []) spawn();          // 新波从相位 0 开始
+  }
+
   moveTo(cx, cy) {
     const dx = cx - this.cx, dy = cy - this.cy;
     this.cx = cx; this.cy = cy;
