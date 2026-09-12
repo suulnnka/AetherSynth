@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>GridMod · 网格模块减法合成器</title>
+<link rel="stylesheet" href="styles/base.css">
+<link rel="stylesheet" href="styles/palette.css">
+<link rel="stylesheet" href="styles/canvas.css">
+<link rel="stylesheet" href="styles/widgets.css">
+<link rel="stylesheet" href="styles/studio.css">
+</head>
+<body>
+<header id="bar">
+  <div class="logo">GRID<b>MOD</b><em>网格模块减法合成器</em></div>
+  <button id="power" class="tbtn power" title="启动 / 停止音频引擎">⏻ 电源</button>
+  <div class="sep"></div>
+  <label class="tlabel">格距
+    <select id="cellsel" title="每格的屏幕像素(所有组件与接口以此为基准对齐)">
+      <option value="16">细 16</option>
+      <option value="20">中 20</option>
+      <option value="24" selected>宽 24</option>
+      <option value="32">特宽 32</option>
+    </select>
+  </label>
+  <label class="tlabel">采样率
+    <select id="ratesel" title="音频引擎采样率(切换会重建引擎,当前补丁原样保留)">
+      <option value="16000">16 kHz</option>
+      <option value="32000">32 kHz</option>
+      <option value="44100">44.1 kHz</option>
+      <option value="48000">48 kHz</option>
+      <option value="96000" selected>96 kHz</option>
+    </select>
+  </label>
+  <div class="sep"></div>
+  <button class="tbtn" id="zoomout" title="缩小">−</button>
+  <span id="zoomval">100%</span>
+  <button class="tbtn" id="zoomin" title="放大">＋</button>
+  <button class="tbtn" id="zoomfit" title="缩放到全部组件">适应</button>
+  <div class="sep"></div>
+  <button class="tbtn" id="demo" title="载入演示音色">演示音色</button>
+  <label class="tlabel">歌曲
+    <select id="songsel" title="内置示例歌曲(原创,多音轨)"><option value="">选择…</option></select>
+  </label>
+  <button class="tbtn" id="ctrlbtn" title="打开 / 关闭 组件工坊(设计并放置个性化自制组件)">工坊</button>
+  <button class="tbtn" id="groupbtn" title="把 Shift 多选的组件封装为一个组合模块(可嵌套)">封装</button>
+  <button class="tbtn" id="export" title="导出补丁 JSON">导出</button>
+  <button class="tbtn" id="importb" title="导入补丁 JSON">导入</button>
+  <button class="tbtn warn" id="clear" title="清空画布">清空</button>
+  <div class="flex"></div>
+  <button class="tbtn" id="help">? 帮助</button>
+  <input type="file" id="filein" accept=".json,application/json" hidden>
+</header>
+
+<div id="main">
+  <aside id="palette">
+    <div class="pnote">
+      组件本身<b>没有任何开关 / 旋钮</b>——<br>
+      旋钮、开关都是独立组件,通过 <b>3.5mm</b> 接口用线缆接入。<br>
+      点击组件即可放到画布上;想要自己的面板,用工具栏<b>「工坊」</b>造一个。
+    </div>
+    <div id="palmine"></div>
+  </aside>
+  <div id="viewport">
+    <div id="world">
+      <div id="gridbg"></div>
+      <svg id="cables" viewBox="-50000 -50000 100000 100000"></svg>
+    </div>
+  </div>
+  <aside id="ctrlpanel" class="hidden">
+    <div id="cptoobar">
+      <button class="tbtn cpadd" data-add="knob" title="添加一个旋钮控件(放置后 = 一路 0~10V CV 输出口)">＋旋钮</button>
+      <button class="tbtn cpadd" data-add="fader" title="添加一个推子控件(放置后 = 一路 0~10V CV 输出口)">＋推子</button>
+      <button class="tbtn cpadd" data-add="switch" title="添加一个开关控件(放置后 = 一路 +10V/0V 门输出口)">＋开关</button>
+      <button class="tbtn cpadd" data-add="meter" title="添加一个电压表(放置后 = 一路信号输入口,显示接进来的电压)">＋电压表</button>
+    </div>
+    <div id="cpinspect" class="hidden">
+      <div class="crow"><span class="cplabel">控件属性</span><button id="cpinspectx" class="tbtn" title="关闭属性面板">✕</button></div>
+      <div class="crow">名称 <input type="text" id="cpilabel" maxlength="10" style="flex:1;min-width:0"></div>
+      <div class="crow" id="cpirange">范围
+        <input type="number" id="cpimin" step="0.5" style="width:44px"> ~
+        <input type="number" id="cpimax" step="0.5" style="width:44px"> V
+        <label id="cpinotel" style="white-space:nowrap">半音 <input type="checkbox" id="cpinote"></label>
+      </div>
+    </div>
+    <div id="cptypebar">
+      <button id="cpthemebtn" class="tbtn">&#127912; 外观与尺寸</button>
+      <button id="cpplace" class="tbtn primary" title="把当前设计放置到画布,成为一个真正的组件">⬇ 放置组件</button>
+    </div>
+    <div id="cptheme" class="hidden">
+      <div class="crow">背景
+        <select id="cpbgtype">
+          <option value="solid">纯色</option>
+          <option value="gradient">渐变</option>
+          <option value="image">图片</option>
+        </select>
+      </div>
+      <div class="crow" id="cpbgsolid"><input type="color" id="cpbgc" value="#f7f8fa"></div>
+      <div id="cpbggrad" class="hidden">
+        <div class="crow">方向 <input type="range" id="cpangle" min="0" max="360" value="135" style="flex:1"></div>
+        <div class="crow stops">
+          <input type="color" id="cpg1" value="#a1c4fd" title="色标 1">
+          <input type="color" id="cpg2" value="#c2e9fb" title="色标 2">
+          <input type="color" id="cpg3" value="#e2d4ac" title="色标 3">
+          <input type="color" id="cpg4" value="#d9c493" title="色标 4">
+        </div>
+      </div>
+      <div id="cpbgimg" class="crow hidden">
+        <input type="text" id="cpimgurl" placeholder="图片 URL" style="flex:1;min-width:0">
+        <label class="cpfile">本地<input type="file" id="cpimgfile" accept="image/*"></label>
+      </div>
+      <div class="crow">尺寸
+        <input type="number" id="cpcols" min="1" max="6" value="3" style="width:36px">列 ×
+        <select id="cpspan" title="每个控制格占据的主格数">
+          <option value="2">2格</option>
+          <option value="3" selected>3格</option>
+          <option value="4">4格</option>
+        </select>跨距
+      </div>
+      <div class="crow">控件
+        <select id="cpwidget">
+          <option value="dark">深色</option>
+          <option value="light">银色</option>
+          <option value="neon">霓虹</option>
+          <option value="retro">复古</option>
+          <option value="minimal">极简</option>
+        </select>
+      </div>
+      <div class="crow">强调 <input type="color" id="cpaccent" value="#ffb01f">
+        文字 <input type="color" id="cptext" value="#2b3138"></div>
+    </div>
+    <div id="ctrlhost"></div>
+  </aside>
+</div>
+
+<footer id="status">
+  <span id="stpower">● 电源:待机</span>
+  <span id="stinfo"></span>
+  <span id="sthint">拖接口→接口 = 接线 · 从已接线的口拖出 = 拔线 · 点线缆 = 删除 · 工坊 = 设计自制组件 · 右键自制组件 = 重新编辑 · 拖空白 = 平移 · 滚轮 = 缩放 · Del = 删除组件 · Ctrl+D = 复制</span>
+</footer>
+
+<div id="tooltip" hidden></div>
+<div id="toast" hidden></div>
+
+<div id="helpmodal" class="modal" hidden>
+  <div class="mbox">
+    <div class="mhead2">使用帮助 <button id="helpclose" class="tbtn">关闭 ✕</button></div>
+    <div class="mbody2">
+      <h3>设计规则</h3>
+      <ul>
+        <li>所有组件(<b>振荡器、滤波器、键盘、喇叭……</b>)本体上没有任何开关、旋钮或按钮。</li>
+        <li>想调参数?<b>「旋钮」「开关」本身也是组件</b>,它们的输出接到目标组件的 3.5mm IO 口上。</li>
+        <li>画布是纯网格制:<b>组件尺寸、接口位置全部以「格」为单位</b>(格距可在工具栏调整:16 / 20 / 24 / 32px),严格对齐网格。</li>
+        <li>一根线缆 = 一条 3.5mm 线;所有信号(CV / Gate / 音频)走同样的线。</li>
+        <li>参考 Reaktor Blocks / VCV Rack 的惯例,<b>接口与线缆按信号类型着色</b>:<span style="color:#c94f4f">● 红 = 音频</span>、<span style="color:#3a76d0">● 蓝 = CV 电压</span>、<span style="color:#2f9e63">● 绿 = 门 / 时钟</span>、<span style="color:#7d8a96">● 灰 = 任意信号</span>、<span style="color:#a94fd0">● 紫 = MIDI</span>(3.5mm TRS-MIDI 惯例)。</li>
+        <li><b>组合与嵌套</b>:Shift+点选多个组件 → 工具栏「封装」,边界线缆自动改为组合面板上的新 3.5mm 口;组合可再参与封装(无限嵌套),右键组合 = 解体还原。</li>
+        <li><b>组件工坊</b>:点工具栏「工坊」,用「＋旋钮 / ＋推子 / ＋开关 / ＋电压表」拼出你自己的面板,改名字、定量程、换配色,「放置组件」后它就是画布上一个真正的组件——每个旋钮 / 推子 / 开关是一路 3.5mm 输出口,电压表是一路输入口。设计会存进左侧「我的组件」随时复用;右键画布上的自制组件 = 载回工坊继续修改。</li>
+        <li>只有最终能把信号送到<b>喇叭</b>(或示波器 / XY 示波器 / 录音机)的组件才会被模拟,其余组件自动<b>休眠变暗</b>;连通性按组件内部信号路径计算(例如滤波器 IN 没接线时,喂 CUTOFF 的旋钮链也算休眠)。</li>
+        <li><b>MIDI 键盘 / MIDI 音序器</b>是 MIDI 设备:MIDI 口发音符信号,并<b>内置 MIDI→CV 转换</b>直接输出 CV;也可以把 MIDI 口接到独立的「MIDI-CV」模块再转。</li>
+      </ul>
+      <h3>快速上手(减法合成)</h3>
+      <ol>
+        <li>点「演示音色」载入示例:<b>键盘 → 振荡器 → 滤波器 → 压控放大 → 喇叭</b>,包络 ADSR 控制音量,旋钮控制滤波。</li>
+        <li>点亮「电源」,按电脑键盘 <b>A W S E D F T G Y H U J K…</b>(或点击琴键)演奏。Z / X 切换键盘八度。</li>
+        <li>想加颤音:放一个 LFO,把它任一波形输出接到振荡器的 <b>FM</b> 口。</li>
+        <li>想用音序器:给「音序器」的 CLK 接时钟(LFO 方波输出),V1~V8 各接一个旋钮设定每步电压,CV → 量化器 → 振荡器音高。</li>
+        <li>录音机:信号接 IN,「开关」输出接 REC 开始录音、接 PLAY 播放、LOOP 接高电平循环。</li>
+        <li>想要一套顺手的专属控制面板?打开「工坊」拼一个自制组件:旋钮 / 推子 / 开关各就各位,放置后接线即用,设计存入「我的组件」可反复放置。</li>
+      </ol>
+      <h3>电压约定</h3>
+      <ul>
+        <li>旋钮输出 <b>0 ~ +10V</b>;音高 <b>1V/oct</b>(振荡器 0V = C4);LFO ±1V;Gate 高电平 = 10V。</li>
+        <li>未接线的输入口使用默认值(如滤波共振默认少量、VCA 未接控制时全开)。</li>
+      </ul>
+      <h3>快捷操作</h3>
+      <ul>
+        <li>从接口拖出 = 接线;从<b>已接线</b>的接口拖出 = 把那根线拔下来换地方;双击接口 = 拔掉它的所有线;单击线缆 = 删除。</li>
+        <li>拖动组件头部移动(自动吸附网格);拖空白处平移;滚轮缩放;Del 删除选中组件;Ctrl+D 复制。</li>
+        <li>支持 Web MIDI:插入 MIDI 键盘后,「键盘」组件自动接收(浏览器询问权限时允许即可)。</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<script type="module" src="src/main.js"></script>
+</body>
+</html>

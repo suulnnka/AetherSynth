@@ -1,0 +1,58 @@
+/* ---------- 组件工坊(CompactPanel 宿主) ---------- */
+#ctrlpanel {
+  width: 246px; flex: 0 0 246px; background: var(--panel);
+  border-left: 1px solid var(--line); min-height: 0; z-index: 15;
+  display: flex; flex-direction: column;
+}
+#ctrlpanel.hidden { display: none; }
+#cptoobar {
+  display: flex; gap: 4px; padding: 6px; border-bottom: 1px solid var(--line);
+  flex-wrap: wrap;
+}
+#cptoobar .cpadd { flex: 1 1 auto; padding: 4px 6px; font-size: 11.5px; white-space: nowrap; }
+#cpinspect {
+  padding: 6px 8px; border-bottom: 1px solid var(--line);
+  display: flex; flex-direction: column; gap: 5px; font-size: 11px; color: var(--dim);
+}
+#cpinspect.hidden { display: none; }
+#cpinspect .crow { display: flex; align-items: center; gap: 5px; flex-wrap: wrap; }
+#cpinspect input[type="text"], #cpinspect input[type="number"] {
+  background: #ffffff; color: var(--txt); border: 1px solid var(--line);
+  border-radius: 5px; padding: 2px 5px; font-size: 11px;
+}
+#cpinspect .cplabel { font-weight: 700; color: var(--txt); letter-spacing: 1px; }
+#cpinspect #cpinspectx { padding: 1px 6px; font-size: 10px; margin-left: auto; }
+#cptypebar {
+  padding: 6px; border-bottom: 1px solid var(--line);
+  display: flex; gap: 6px; align-items: center;
+}
+#cptypebar .tbtn { font-size: 11.5px; padding: 4px 8px; }
+#cptypebar #cpthemebtn { flex: 1; }
+.tbtn.primary {
+  background: linear-gradient(160deg, #ffd97a, #f0b429); border-color: #d99a12;
+  color: #5c4000; font-weight: 700; white-space: nowrap;
+}
+.tbtn.primary:hover { border-color: #b98a1d; }
+#cptheme { padding: 6px 8px; border-bottom: 1px solid var(--line);
+  display: flex; flex-direction: column; gap: 5px; font-size: 11px; color: var(--dim); }
+#cptheme.hidden { display: none; }
+#cptheme .crow { display: flex; align-items: center; gap: 5px; flex-wrap: wrap; }
+#cptheme .crow.stops { gap: 3px; }
+#cptheme input[type="color"], #cpinspect input[type="color"] { width: 26px; height: 22px; padding: 0; border: 1px solid var(--line);
+  border-radius: 4px; background: none; cursor: pointer; }
+#cptheme input[type="range"] { accent-color: var(--amber); }
+#cptheme select, #cpinspect select { background: var(--panel2); color: var(--txt); border: 1px solid var(--line);
+  border-radius: 5px; padding: 2px 4px; font-size: 11px; }
+#cptheme .cpfile { background: var(--panel2); border: 1px solid var(--line); border-radius: 5px;
+  padding: 2px 6px; cursor: pointer; font-size: 10px; }
+#ctrlhost { flex: 1; min-height: 0; }
+
+/* ---------- 自制组件:模块内容区(复用 cpx 控件外观) ---------- */
+.cpx-modgrid {
+  height: 100%; display: grid; gap: calc(4px * var(--k, 1)); align-content: center;
+  justify-content: center;
+}
+.cpx-modgrid .cpx-cell { cursor: default; }
+.pgroup.g-mine { color: var(--amber); }
+.pitem.g-mine { border-left-color: var(--amber); }
+.pitem.g-mine .psz { color: var(--amber); opacity: .75; }

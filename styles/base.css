@@ -1,0 +1,93 @@
+/* GridMod 网格模块减法合成器 · 白色主题 */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #eef0f3;
+  --panel: #f7f8fa;
+  --panel2: #eceef1;
+  --line: #d3d7dd;
+  --txt: #2b3138;
+  --dim: #6b7480;
+  --amber: #d99000;
+  --c-control: #b07800;
+  --c-source: #0e8fa8;
+  --c-process: #3f6cc3;
+  --c-output: #8a4bb8;
+  --cellpx: 24px; /* 每格的屏幕像素,JS 覆写 */
+  --k: 1;         /* 内容缩放系数 */
+}
+html, body { height: 100%; overflow: hidden; }
+body {
+  background: var(--bg); color: var(--txt);
+  font-family: "Segoe UI", system-ui, "Microsoft YaHei", sans-serif;
+  display: flex; flex-direction: column; user-select: none;
+}
+
+/* ---------- 顶栏 ---------- */
+#bar {
+  height: 44px; flex: 0 0 44px; display: flex; align-items: center; gap: 6px;
+  padding: 0 10px; background: var(--panel); border-bottom: 1px solid var(--line);
+  z-index: 20;
+}
+.logo { font-weight: 800; letter-spacing: 1px; font-size: 15px; margin-right: 8px; color: #1f242a; }
+.logo b { color: var(--amber); }
+.logo em { font-style: normal; font-weight: 400; font-size: 11px; color: var(--dim); margin-left: 8px; }
+.tbtn {
+  background: #ffffff; color: var(--txt); border: 1px solid var(--line);
+  border-radius: 6px; padding: 5px 10px; font-size: 12px; cursor: pointer;
+}
+.tbtn:hover { border-color: #9aa3ae; background: #f2f4f7; }
+.tbtn:active { transform: translateY(1px); }
+.tbtn.power { color: #c25b3a; border-color: #e5c4b6; min-width: 70px; }
+.tbtn.power.on { color: #178a4c; border-color: #a9d8bd; box-shadow: 0 0 8px rgba(30,180,100,.2) inset; }
+.tbtn.warn:hover { border-color: #d98a8a; color: #b03030; }
+.tlabel { font-size: 12px; color: var(--dim); display: flex; align-items: center; gap: 6px; }
+.tlabel select {
+  background: #ffffff; color: var(--txt); border: 1px solid var(--line);
+  border-radius: 6px; padding: 4px 6px; font-size: 12px;
+}
+.sep { width: 1px; height: 20px; background: var(--line); margin: 0 4px; }
+.flex { flex: 1; }
+#zoomval { font-size: 12px; color: var(--dim); min-width: 42px; text-align: center; }
+/* ---------- 状态栏 / 弹层 ---------- */
+#status {
+  height: 26px; flex: 0 0 26px; display: flex; align-items: center; gap: 18px;
+  background: var(--panel); border-top: 1px solid var(--line);
+  font-size: 11px; color: var(--dim); padding: 0 12px; white-space: nowrap; overflow: hidden;
+}
+#stpower { color: #c25b3a; }
+#stpower.on { color: #178a4c; }
+#sthint { margin-left: auto; overflow: hidden; text-overflow: ellipsis; }
+
+#tooltip {
+  position: fixed; z-index: 100; pointer-events: none; max-width: 240px;
+  background: #ffffff; border: 1px solid var(--line); border-radius: 6px;
+  padding: 5px 8px; font-size: 11px; color: var(--txt); box-shadow: 0 4px 12px rgba(30,40,60,.18);
+}
+#tooltip b { color: var(--amber); }
+#toast {
+  position: fixed; left: 50%; bottom: 40px; transform: translateX(-50%); z-index: 110;
+  background: #ffffff; border: 1px solid var(--line); border-radius: 8px;
+  padding: 8px 16px; font-size: 12.5px; color: var(--txt); box-shadow: 0 6px 20px rgba(30,40,60,.22);
+  transition: opacity .25s;
+}
+.modal {
+  position: fixed; inset: 0; z-index: 90; background: rgba(50,60,75,.4);
+  display: flex; align-items: center; justify-content: center;
+}
+.modal[hidden] { display: none; }
+.mbox {
+  width: min(680px, 92vw); max-height: 84vh; display: flex; flex-direction: column;
+  background: #ffffff; border: 1px solid var(--line); border-radius: 10px; overflow: hidden;
+}
+.mhead2 {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 10px 14px; font-weight: 700; border-bottom: 1px solid var(--line); background: var(--panel2);
+}
+.mbody2 { padding: 12px 18px; overflow-y: auto; font-size: 12.5px; line-height: 1.8; }
+.mbody2 h3 { margin: 12px 0 4px; color: #a06e00; font-size: 13px; }
+.mbody2 ul, .mbody2 ol { padding-left: 20px; }
+.mbody2 li { margin: 2px 0; }
+.mbody2 b { color: #1f242a; }
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-thumb { background: #c3c9d2; border-radius: 5px; border: 2px solid var(--panel); }
+::-webkit-scrollbar-track { background: transparent; }

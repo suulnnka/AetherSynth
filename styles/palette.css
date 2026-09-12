@@ -1,0 +1,21 @@
+/* ---------- 左侧组件栏 ---------- */
+/* ---------- 主区 ---------- */
+#main { flex: 1; display: flex; min-height: 0; }
+#palette {
+  width: 190px; flex: 0 0 190px; overflow-y: auto; background: var(--panel);
+  border-right: 1px solid var(--line); padding: 8px; z-index: 10;
+}
+.pnote { font-size: 11px; line-height: 1.7; color: var(--dim); background: #ffffff; border: 1px dashed var(--line); border-radius: 8px; padding: 8px; margin-bottom: 10px; }
+.pnote b { color: var(--amber); }
+.pgroup { font-size: 11px; font-weight: 700; letter-spacing: 2px; margin: 12px 4px 6px; }
+.pitem {
+  display: flex; justify-content: space-between; align-items: baseline;
+  background: #ffffff; border: 1px solid var(--line); border-left-width: 3px;
+  border-radius: 6px; padding: 6px 8px; margin-bottom: 5px; cursor: pointer; font-size: 12.5px;
+}
+.pitem:hover { border-color: #8d97a3; background: #f4f6f9; }
+.pitem .psz { font-size: 10px; color: var(--dim); }
+.g-control { border-left-color: var(--c-control); } .pgroup.g-control { color: var(--c-control); }
+.g-source  { border-left-color: var(--c-source);  } .pgroup.g-source  { color: var(--c-source); }
+.g-process { border-left-color: var(--c-process); } .pgroup.g-process { color: var(--c-process); }
+.g-output  { border-left-color: var(--c-output);  } .pgroup.g-output  { color: var(--c-output); }
