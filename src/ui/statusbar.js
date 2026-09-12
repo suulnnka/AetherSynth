@@ -11,8 +11,8 @@ export function updateStatus() {
   sp.textContent = run ? t('● 电源:运行中', '● Power: running') : t('● 电源:待机', '● Power: standby');
   sp.classList.toggle('on', run);
   $('#stinfo').textContent = t(
-    `模块 ${state.mods.size} · 线缆 ${state.cables.size} · ${(getCtx().sampleRate / 1000).toFixed(1)} kHz · 格距 ${state.cellPx}px`,
-    `${state.mods.size} modules · ${state.cables.size} cables · ${(getCtx().sampleRate / 1000).toFixed(1)} kHz · grid ${state.cellPx}px`);
+    `模块 ${state.mods.size} · 线缆 ${state.cables.size} · ${(getCtx().sampleRate / 1000).toFixed(1)} kHz`,
+    `${state.mods.size} modules · ${state.cables.size} cables · ${(getCtx().sampleRate / 1000).toFixed(1)} kHz`);
 }
 
 export function startStatusLoop() { setInterval(updateStatus, 600); }

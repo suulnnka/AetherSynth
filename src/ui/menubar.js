@@ -6,7 +6,7 @@
 import { $ } from '../core/utils.js';
 import { state } from '../core/state.js';
 import { getCtx, firstGesture } from '../core/audio.js';
-import { viewport, setCellSize, fitView, zoomAt } from '../core/view.js';
+import { viewport, fitView, zoomAt } from '../core/view.js';
 import { serialize, clearAll, deserialize } from '../core/serialize.js';
 import { setSampleRate, currentRate } from '../core/engine.js';
 import { encapsulateSelected } from '../core/composite.js';
@@ -27,7 +27,6 @@ import { confirmDialog } from './window.js';
 import { toast } from './toast.js';
 import { updateStatus } from './statusbar.js';
 
-const CELL_SIZES = [[16, '细 16'], [20, '中 20'], [24, '宽 24'], [32, '特宽 32']];
 const RATES = [[16000, '16 kHz'], [32000, '32 kHz'], [44100, '44.1 kHz'], [48000, '48 kHz'], [96000, '96 kHz']];
 
 const zoomCenter = f => {
@@ -67,8 +66,6 @@ const exportPatch = () => {
   setTimeout(() => URL.revokeObjectURL(a.href), 3000);
 };
 
-const CELL_LABELS = { 16: t('细 16', 'Fine 16'), 20: t('中 20', 'Medium 20'), 24: t('宽 24', 'Wide 24'), 32: t('特宽 32', 'X-Wide 32') };
-
 const MENUS = [
   { label: t('文件', 'File'), items: [
     { label: t('导入画布…', 'Import patch…'), hint: t('从文件恢复', 'from a file'), action: () => $('#filein').click() },
@@ -90,12 +87,6 @@ const MENUS = [
     { label: t('组件工坊', 'Component workshop'), checked: () => isStudioVisible(), action: toggleStudio }
   ]},
   { label: t('选项', 'Options'), items: [
-    { group: t('格距(每格像素)', 'Grid size (px per cell)') },
-    ...CELL_SIZES.map(([v]) => ({
-      label: CELL_LABELS[v], checked: () => state.cellPx === v,
-      action: () => { setCellSize(v); fitView(); saveSoon(); }
-    })),
-    { sep: true },
     { group: t('采样率(切换重建引擎)', 'Sample rate (switching rebuilds the engine)') },
     ...RATES.map(([v, label]) => ({
       label, checked: () => currentRate() === v,

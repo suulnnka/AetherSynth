@@ -84,7 +84,7 @@
       <ul>
         <li>所有组件(<b>振荡器、滤波器、键盘、喇叭……</b>)本体上没有任何开关、旋钮或按钮。</li>
         <li>想调参数?<b>「旋钮」「开关」本身也是组件</b>,它们的输出接到目标组件的 3.5mm IO 口上。</li>
-        <li>画布是纯网格制:<b>组件尺寸、接口位置全部以「格」为单位</b>(格距可在工具栏调整:16 / 20 / 24 / 32px),严格对齐网格。</li>
+        <li>画布是纯网格制:<b>组件尺寸、接口位置全部以「格」为单位</b>,严格对齐网格。</li>
         <li>一根线缆 = 一条 3.5mm 线;所有信号(CV / Gate / 音频)走同样的线。</li>
         <li>参考 Reaktor Blocks / VCV Rack 的惯例,<b>接口与线缆按信号类型着色</b>:<span style="color:#c94f4f">● 红 = 音频</span>、<span style="color:#3a76d0">● 蓝 = CV 电压</span>、<span style="color:#2f9e63">● 绿 = 门 / 时钟</span>、<span style="color:#7d8a96">● 灰 = 任意信号</span>、<span style="color:#a94fd0">● 紫 = MIDI</span>(3.5mm TRS-MIDI 惯例)。</li>
         <li><b>组合与嵌套</b>:Shift+点选多个组件 → 工具栏「封装」,边界线缆自动改为组合面板上的新 3.5mm 口;组合可再参与封装(无限嵌套),右键组合 = 解体还原。</li>
@@ -109,7 +109,7 @@
       <h3>快捷操作</h3>
       <ul>
         <li>从接口拖出 = 接线;从<b>已接线</b>的接口拖出 = 把那根线拔下来换地方;双击接口 = 拔掉它的所有线;单击线缆 = 删除。</li>
-        <li>拖动组件头部移动(自动吸附网格);拖空白处平移;滚轮缩放;Del 删除选中组件;Ctrl+D 复制。</li>
+        <li>拖动组件头部移动(自动吸附网格);拖空白处、滚轮或双指滑动平移;Ctrl+滚轮(触摸板捏合)以指针为中心缩放;Del 删除选中组件;Ctrl+D 复制。</li>
         <li>支持 Web MIDI:插入 MIDI 键盘后,「键盘」组件自动接收(浏览器询问权限时允许即可)。</li>
       </ul>
     </div>
@@ -118,7 +118,7 @@
       <ul>
         <li>No module (<b>oscillator, filter, keyboard, speaker…</b>) has any switch, knob or button on its body.</li>
         <li>Want to tweak a parameter? <b>Knobs and switches are modules too</b> — patch their output into the target module&#39;s 3.5mm jacks.</li>
-        <li>The canvas is strictly grid-based: <b>module sizes and jack positions are measured in grid cells</b> (grid density is adjustable in the menu bar: 16 / 20 / 24 / 32px).</li>
+        <li>The canvas is strictly grid-based: <b>module sizes and jack positions are measured in grid cells</b>.</li>
         <li>One cable = one 3.5mm wire; all signals (CV / Gate / audio) run down the same kind of wire.</li>
         <li>Following the Reaktor Blocks / VCV Rack convention, <b>jacks and cables are colored by signal type</b>: <span style="color:#c94f4f">&#9679; red = audio</span>, <span style="color:#3a76d0">&#9679; blue = CV</span>, <span style="color:#2f9e63">&#9679; green = gate / clock</span>, <span style="color:#7d8a96">&#9679; gray = any signal</span>, <span style="color:#a94fd0">&#9679; purple = MIDI</span> (3.5mm TRS-MIDI convention).</li>
         <li><b>Composites and nesting</b>: Shift+click several modules &#8594; &#8220;Encapsulate&#8221;; boundary cables automatically become new 3.5mm jacks on the composite panel. Composites can be encapsulated again (unlimited nesting); right-click a composite to dissolve it.</li>
@@ -143,7 +143,7 @@
       <h3>Shortcuts</h3>
       <ul>
         <li>Drag from a jack = patch; drag from an <b>already-patched</b> jack = unplug that cable and move it; double-click a jack = unplug everything from it; click a cable = delete it.</li>
-        <li>Drag a module header to move it (snaps to the grid); drag empty space to pan; wheel to zoom; Del deletes the selection; Ctrl+D duplicates.</li>
+        <li>Drag a module header to move it (snaps to the grid); drag empty space, scroll or two fingers to pan; Ctrl+wheel (trackpad pinch) zooms at the pointer; Del deletes the selection; Ctrl+D duplicates.</li>
         <li>Web MIDI supported: plug in a MIDI keyboard and the &#8220;MIDI keyboard&#8221; module receives it automatically (allow the browser permission prompt).</li>
       </ul>
     </div>

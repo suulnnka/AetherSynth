@@ -100,11 +100,18 @@ export function initPointer() {
     }
   });
 
-  // 滚轮缩放(以指针为中心)
+  // 触摸板 / 滚轮:双指滑动(普通滚轮)平移;Ctrl+滚轮(触摸板捏合)以指针为中心缩放
   viewport.addEventListener('wheel', e => {
     e.preventDefault();
     const r = viewport.getBoundingClientRect();
-    zoomAt(e.clientX - r.left, e.clientY - r.top, state.view.s * Math.exp(-e.deltaY * 0.0012));
+    if (e.ctrlKey) {
+      zoomAt(e.clientX - r.left, e.clientY - r.top, state.view.s * Math.exp(-e.deltaY * 0.01));
+      return;
+    }
+    const k = e.deltaMode === 1 ? 16 : 1;   // 行模式增量(部分鼠标)换算成像素
+    state.view.x -= e.deltaX * k;
+    state.view.y -= e.deltaY * k;
+    applyView();
   }, { passive: false });
 }
 

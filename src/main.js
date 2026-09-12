@@ -64,8 +64,8 @@ function boot() {
   document.title = t('AetherSynth · 网格模块减法合成器', 'AetherSynth · Grid modular subtractive synthesizer');
   const hint = document.getElementById('sthint');
   if (hint) hint.textContent = t(
-    '拖接口→接口 = 接线 · 从已接线的口拖出 = 拔线 · 点线缆 = 删除 · 工坊 = 设计自制组件 · 右键自制组件 = 重新编辑 · 拖空白 = 平移 · 滚轮 = 缩放 · Del = 删除组件 · Ctrl+D = 复制',
-    'drag jack → jack = patch · drag from a patched jack = unplug · click a cable = delete · workshop = design custom modules · right-click a custom module = re-edit · drag empty space = pan · wheel = zoom · Del = delete · Ctrl+D = duplicate');
+    '拖接口→接口 = 接线 · 从已接线的口拖出 = 拔线 · 点线缆 = 删除 · 工坊 = 设计自制组件 · 右键自制组件 = 重新编辑 · 拖空白 / 滚轮 / 双指滑动 = 平移 · Ctrl+滚轮(捏合)= 缩放 · Del = 删除组件 · Ctrl+D = 复制',
+    'drag jack → jack = patch · drag from a patched jack = unplug · click a cable = delete · workshop = design custom modules · right-click a custom module = re-edit · drag empty space / scroll / two fingers = pan · Ctrl+wheel (pinch) = zoom · Del = delete · Ctrl+D = duplicate');
   window.addEventListener('beforeunload', () => {
     try { localStorage.setItem(LSKEY, JSON.stringify(serialize())); } catch (e) {}
   });
