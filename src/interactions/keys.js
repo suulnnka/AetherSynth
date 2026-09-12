@@ -38,10 +38,10 @@ export function initKeyboard() {
       for (const m of state.mods.values()) if (m.def.id === 'keyboard') m.shiftOct(k === 'z' ? -1 : 1);
       return;
     }
-    if (k in KEYMAP) for (const m of state.mods.values()) if (m.def.id === 'keyboard') m.compNote(KEYMAP[k], true);
+    if (k in KEYMAP) for (const m of state.mods.values()) if (m.compNote) m.compNote(KEYMAP[k], true);
   });
   window.addEventListener('keyup', e => {
     const k = e.key.toLowerCase();
-    if (k in KEYMAP) for (const m of state.mods.values()) if (m.def.id === 'keyboard') m.compNote(KEYMAP[k], false);
+    if (k in KEYMAP) for (const m of state.mods.values()) if (m.compNote) m.compNote(KEYMAP[k], false);
   });
 }

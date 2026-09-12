@@ -44,6 +44,7 @@ export const PORT_TYPES = {
   'wt:OUT': 'audio', 'wt:VOCT': 'cv', 'wt:POS': 'cv', 'wt:SYNC': 'gate',
   'phys:OUT': 'audio', 'phys:TRIG': 'gate', 'phys:VOCT': 'cv', 'phys:DAMP': 'cv',
   'noiseo:OUT': 'audio', 'noiseo:VOCT': 'cv', 'noiseo:COLOR': 'cv',
+  'minimoog:GATE': 'gate', 'minimoog:V/OCT': 'cv',
   'amp:GAIN': 'cv',
   'mult8:IN': 'any', 'mult8:O1': 'any', 'mult8:O2': 'any', 'mult8:O3': 'any',
   'mult8:O4': 'any', 'mult8:O5': 'any', 'mult8:O6': 'any', 'mult8:O7': 'any', 'mult8:O8': 'any',

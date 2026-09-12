@@ -8,10 +8,10 @@ beforeEach(() => {
   DEFS_ORDER.length = 0;
 });
 
-test('registerAllModules:注册全部 54 个内置组件并排版接口', () => {
+test('registerAllModules:注册全部 55 个内置组件并排版接口', () => {
   registerAllModules();
-  assert.equal(DEFS_ORDER.length, 54);
-  assert.equal(Object.keys(DEFS).length, 54);
+  assert.equal(DEFS_ORDER.length, 55);
+  assert.equal(Object.keys(DEFS).length, 55);
   for (const id of MODULE_ORDER) {
     const d = DEFS[id];
     assert.ok(d, '缺少组件:' + id);
@@ -67,6 +67,13 @@ test('高级振荡器:波表 / 物理建模 / 噪声振荡器端口就位', () =
   assert.equal(DEFS.phys.portsById.VOCT.type, 'cv');
   assert.equal(DEFS.phys.portsById.DAMP.type, 'cv');
   assert.equal(DEFS.noiseo.portsById.COLOR.type, 'cv');
+});
+
+test('Minimoog:端口类型与引擎节点', () => {
+  registerAllModules();
+  assert.deepEqual(DEFS.minimoog.ports.map(p => p.id + ':' + p.dir), ['OUT:out', 'GATE:in', 'V/OCT:in']);
+  assert.equal(DEFS.minimoog.portsById.GATE.type, 'gate');
+  assert.equal(DEFS.minimoog.portsById['V/OCT'].type, 'cv');
 });
 
 test('时钟与相位同步:clk / SYNC / DUTY / PUL 端口就位', () => {
