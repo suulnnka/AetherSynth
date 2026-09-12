@@ -5,6 +5,8 @@
 
 import { state, nextId } from './state.js';
 import { registerDef } from './registry.js';
+
+
 import { layoutDefPorts } from './ports.js';
 import { createModule, deleteMod } from './module.js';
 import { addCable, removeCable, findCable } from './cables.js';
@@ -13,6 +15,7 @@ import { saveSoon } from './save.js';
 import { selMod } from './selection.js';
 import { toast } from '../ui/toast.js';
 import { confirmDialog } from '../ui/window.js';
+import { MAX_NEST_DEPTH, nestDepthExceeded } from './nesting.js';
 
 export function mkCompositeDef(key, ports, w, h) {
   const ins = ports.filter(p => p.dir === 'in').map(p => p.id);
@@ -46,6 +49,11 @@ export function wireComposite(mod) {
 export function encapsulateSelected() {
   if (state.selSet.size < 2) { toast('先按住 Shift 点选 ≥2 个组件,再点「封装」'); return; }
   const ids = [...state.selSet];
+  // 嵌套深度防御:封装后的新组合不能超过最大层数
+  if (nestDepthExceeded(state.mods, ids)) {
+    toast('组合嵌套最多 ' + MAX_NEST_DEPTH + ' 层,无法继续封装');
+    return;
+  }
   const inSet = new Set(ids);
   const parents = new Set(ids.map(id => state.mods.get(id).parent || null));
   if (parents.size > 1) { toast('请选择同一层级的组件'); return; }
