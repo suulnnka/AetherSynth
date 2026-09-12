@@ -4,6 +4,7 @@
 import { clamp } from '../core/utils.js';
 import { ctx } from '../core/audio.js';
 import { kit } from '../kit/index.js';
+import { saveSoon } from '../core/save.js';
 
 export const processors = {
   vcf: {
@@ -52,6 +53,27 @@ export const processors = {
       this.addBase('GAIN', g.gain, 1, 0);
       this.gn = g;
     }
+  },
+
+  amp: {
+    id: 'amp', name: '放大器', en: 'AMPLIFIER', cat: 'process', w: 4, h: 5,
+    desc: '定增益放大:面板旋钮直接设定放大倍数(×0~×10),GAIN 口的 CV 可再叠加(10V = +10×)。要把小信号推大时用它;VCA 是用 CV 控音量,这个是定增益提升。',
+    ports: [
+      { id: 'OUT', dir: 'out', name: 'OUT', desc: '放大后输出' },
+      { id: 'IN', dir: 'in', name: 'IN', desc: '音频输入' },
+      { id: 'GAIN', dir: 'in', name: 'GAIN', desc: '增益叠加 0~10V(默认 0)' }
+    ],
+    state: () => ({ v: 2 }),
+    build() {
+      this.g = ctx.createGain(); this.g.gain.value = this.state.v;
+      this.ins.IN.connect(this.g); this.g.connect(this.outs.OUT);
+      this.cs = ctx.createConstantSource(); this.cs.offset.value = this.state.v;
+      this.cs.connect(this.g.gain); this.cs.start();
+      const s = ctx.createGain(); s.gain.value = 1;
+      this.ins.GAIN.connect(s); s.connect(this.g.gain);
+      kit.knob(this, { min: 0, max: 10, value: this.state.v, unit: '×' });
+    },
+    dispose() { try { this.cs.stop(); } catch (e) {} }
   },
 
   adsr: {
@@ -180,6 +202,47 @@ export const processors = {
       { id: 'IN', dir: 'in', name: 'IN', desc: '输入(任意信号)' }
     ],
     build() { ['O1', 'O2', 'O3', 'O4'].forEach(o => this.ins.IN.connect(this.outs[o])); }
+  },
+
+  mult8: {
+    id: 'mult8', name: '一分八', en: 'MULT ×8', cat: 'process', w: 16, h: 5,
+    desc: '八路信号分配:一路输入复制到八个输出口,每路可单独开关(熄灭 = 静音)。要把一组信号同时送给多个组件时用它。',
+    ports: [
+      { id: 'IN', dir: 'in', name: 'IN', desc: '输入(任意信号)' },
+      { id: 'O1', dir: 'out', name: '1', desc: '分配输出 1' },
+      { id: 'O2', dir: 'out', name: '2', desc: '分配输出 2' },
+      { id: 'O3', dir: 'out', name: '3', desc: '分配输出 3' },
+      { id: 'O4', dir: 'out', name: '4', desc: '分配输出 4' },
+      { id: 'O5', dir: 'out', name: '5', desc: '分配输出 5' },
+      { id: 'O6', dir: 'out', name: '6', desc: '分配输出 6' },
+      { id: 'O7', dir: 'out', name: '7', desc: '分配输出 7' },
+      { id: 'O8', dir: 'out', name: '8', desc: '分配输出 8' }
+    ],
+    state: () => ({ ch: [1, 1, 1, 1, 1, 1, 1, 1] }),
+    build() {
+      for (let i = 1; i <= 8; i++) this.outs['O' + i].gain.value = this.state.ch[i - 1] ? 1 : 0;
+      // 面板:8 路通道开关
+      const row = document.createElement('div');
+      row.className = 'mch-row';
+      this._sw = [];
+      for (let i = 1; i <= 8; i++) {
+        const b = document.createElement('div');
+        b.className = 'mch' + (this.state.ch[i - 1] ? ' on' : '');
+        b.textContent = i;
+        b.dataset.ctl = '1';
+        b.addEventListener('pointerdown', e => { e.stopPropagation(); this.setCh(i, !this.state.ch[i - 1]); });
+        row.appendChild(b);
+        this._sw.push(b);
+      }
+      this.body.appendChild(row);
+    },
+    setCh(i, on) {
+      this.state.ch[i - 1] = on ? 1 : 0;
+      this.outs['O' + i].gain.setTargetAtTime(on ? 1 : 0, ctx.currentTime, 0.004);
+      const sw = this._sw[i - 1];
+      if (sw) sw.classList.toggle('on', !!on);
+      saveSoon();
+    }
   },
 
   quant: {

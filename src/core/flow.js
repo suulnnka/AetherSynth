@@ -19,6 +19,7 @@ export const FLOW = {
   delay: { OUT: ['IN'] },
   atten: { OUT: ['IN'] },
   mult: { O1: ['IN'], O2: ['IN'], O3: ['IN'], O4: ['IN'] },
+  mult8: { O1: ['IN'], O2: ['IN'], O3: ['IN'], O4: ['IN'], O5: ['IN'], O6: ['IN'], O7: ['IN'], O8: ['IN'] },
   quant: { OUT: ['CV'] },
   sh: { OUT: ['TRIG'] },
   mix: { OUT: ['A', 'B', 'C'] },
@@ -32,7 +33,7 @@ export const FLOW = {
 
 /** 显示 / 录音终端也算信号归宿(否则示波器永远休眠)。
     自制组件(工坊)带电压表输入口时会动态登记到这里。 */
-export const SINK_DEFS = { spk: 1, scope: 1, xy: 1, rec: 1 };
+export const SINK_DEFS = { spk: 1, scope: 1, xy: 1, rec: 1, spec: 1 };
 
 /** 纯计算:返回活跃组件 id 集合。mods/cables 形如 state.mods/state.cables,
     元素只需提供 { id, def:{id, ports, flow} }(单测可传假对象)。 */

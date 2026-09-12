@@ -93,6 +93,43 @@ export const outputs = {
     }
   },
 
+  spec: {
+    id: 'spec', name: '频谱仪', en: 'SPECTRUM', cat: 'output', w: 10, h: 7,
+    desc: '实时频谱分析(FFT):柱状显示信号的频率分布。看音高、滤波器截止效果、谐波结构一目了然。',
+    ports: [{ id: 'IN', dir: 'in', name: 'IN', desc: '音频输入' }],
+    build() {
+      this.an = ctx.createAnalyser();
+      this.an.fftSize = 2048;
+      this.an.smoothingTimeConstant = 0.82;
+      this.ins.IN.connect(this.an);
+      // 保证分析器被音频线程拉动(与录音机同款静音泵)
+      this.mute = ctx.createGain(); this.mute.gain.value = 0;
+      this.an.connect(this.mute); this.mute.connect(ctx.destination);
+      this._fd = new Uint8Array(this.an.frequencyBinCount);
+      kit.screen(this, 'scr');
+    },
+    tick() {
+      const a = this.an, s = this.scr;
+      if (!a || !s) return;
+      a.getByteFrequencyData(this._fd);
+      const { c, w: W, h: H } = s;
+      c.fillStyle = '#0b0d10'; c.fillRect(0, 0, W, H);
+      // 48 根柱,横轴按平方刻度(低频细分)
+      const n = 48, bw = W / n, bins = this._fd.length;
+      for (let i = 0; i < n; i++) {
+        const lo = Math.floor(Math.pow(i / n, 2) * bins);
+        const hi = Math.max(lo + 1, Math.floor(Math.pow((i + 1) / n, 2) * bins));
+        let pk = 0;
+        for (let k = lo; k < hi && k < bins; k++) pk = Math.max(pk, this._fd[k]);
+        const bh = (pk / 255) * (H - 16);
+        c.fillStyle = pk > 210 ? '#ffd24d' : '#4fa8ff';
+        c.fillRect(i * bw + 1, H - 10 - bh, Math.max(1, bw - 2), bh);
+      }
+      c.fillStyle = '#8fb4d8'; c.font = '9px monospace';
+      c.fillText('20Hz ~ 20kHz', 4, 10);
+    }
+  },
+
   xy: {
     id: 'xy', name: 'XY示波器', en: 'XY SCOPE', cat: 'output', w: 8, h: 6,
     desc: '矢量示波器(李萨如图形):X 与 Y 两路信号互相垂直偏转,可看相位差、频率比与旋转轨迹。带余辉,光点为最新采样。',

@@ -8,10 +8,10 @@ beforeEach(() => {
   DEFS_ORDER.length = 0;
 });
 
-test('registerAllModules:注册全部 48 个内置组件并排版接口', () => {
+test('registerAllModules:注册全部 51 个内置组件并排版接口', () => {
   registerAllModules();
-  assert.equal(DEFS_ORDER.length, 48);
-  assert.equal(Object.keys(DEFS).length, 48);
+  assert.equal(DEFS_ORDER.length, 51);
+  assert.equal(Object.keys(DEFS).length, 51);
   for (const id of MODULE_ORDER) {
     const d = DEFS[id];
     assert.ok(d, '缺少组件:' + id);
@@ -49,6 +49,14 @@ test('音频效果器与立体声喇叭:端口类型正确', () => {
   assert.equal(DEFS.sred.portsById.RATE.type, 'cv');
   assert.deepEqual(DEFS.spk.ports.map(p => p.id), ['L', 'R']);
   assert.equal(DEFS.spk.portsById.L.type, 'audio');
+});
+
+test('新增组件:放大器 / 一分八 / 频谱仪', () => {
+  registerAllModules();
+  assert.equal(DEFS.amp.portsById.GAIN.type, 'cv');
+  assert.equal(DEFS.mult8.ports.length, 9);          // IN + 8 出
+  assert.equal(DEFS.mult8.portsById.O8.type, 'any');
+  assert.equal(DEFS.spec.portsById.IN.type, 'any');
 });
 
 test('时钟与相位同步:clk / SYNC / DUTY / PUL 端口就位', () => {

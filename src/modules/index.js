@@ -22,10 +22,10 @@ const GROUPS = {
 export const MODULE_ORDER = [
   'knob', 'bigknob', 'fader', 'hfader', 'touch', 'biknob', 'step6', 'step10', 'step4', 'chrom', 'switch', 'keyboard', 'seq',
   'vco', 'fm', 'lfo', 'noise', 'mic', 'clk', 'kick', 'snare', 'hat',
-  'vcf', 'vca', 'adsr', 'delay', 'atten', 'mult', 'quant', 'sh', 'mix', 'midicv',
+  'vcf', 'vca', 'amp', 'adsr', 'delay', 'atten', 'mult', 'mult8', 'quant', 'sh', 'mix', 'midicv',
   'comp', 'bquant', 'sred',
   'add', 'sub', 'mul', 'div', 'avg', 'round', 'floor', 'ceil', 'sel',
-  'spk', 'scope', 'xy', 'rec'
+  'spk', 'spec', 'scope', 'xy', 'rec'
 ];
 
 export function registerAllModules() {

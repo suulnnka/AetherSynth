@@ -40,7 +40,11 @@ export const PORT_TYPES = {
   'spk:L': 'audio', 'spk:R': 'audio',
   'clk:OUT': 'gate', 'clk:RST': 'gate',
   'vco:SYNC': 'gate', 'fm:SYNC': 'gate', 'lfo:SYNC': 'gate',
-  'vco:DUTY': 'cv', 'lfo:DUTY': 'cv'
+  'vco:DUTY': 'cv', 'lfo:DUTY': 'cv',
+  'amp:GAIN': 'cv',
+  'mult8:IN': 'any', 'mult8:O1': 'any', 'mult8:O2': 'any', 'mult8:O3': 'any',
+  'mult8:O4': 'any', 'mult8:O5': 'any', 'mult8:O6': 'any', 'mult8:O7': 'any', 'mult8:O8': 'any',
+  'spec:IN': 'any'
 };
 
 /** 线缆 / 接口按信号类型着色(Reaktor Blocks / VCV Rack 惯例) */

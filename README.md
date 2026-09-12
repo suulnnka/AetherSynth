@@ -48,10 +48,10 @@ npm test         # 运行单元测试(Node 内置 test runner,零依赖)
 │   │   ├── sources.js    VCO / FM / LFO(SYNC 相位硬同步、空占比)/ 噪声 / 麦克风
 │   │   ├── clock.js      时钟(BPM / 空占比 / RST 复位)
 │   │   ├── drums.js      底鼓 / 军鼓 / 踩镲
-│   │   ├── processors.js VCF / VCA / ADSR / 延迟 / 量化 / S&H …
+│   │   ├── processors.js VCF / VCA / ADSR / 延迟 / 量化 / S&H / 放大器 / 一分八 …
 │   │   ├── effects.js    压限器 / 比特量化 / 重采样
 │   │   ├── math.js       数字运算组件工厂(加 / 减 / 乘 / 除 / 选择器…)
-│   │   ├── outputs.js    立体声喇叭 / 示波器 / XY / 录音机
+│   │   ├── outputs.js    立体声喇叭 / 示波器 / 频谱仪 / XY / 录音机
 │   │   └── index.js      总装:注册 + 侧栏顺序
 │   ├── workshop/         组件工坊:UI 布局编辑器(按格拖拽排版)
 │   │   ├── panel.js        CompactPanel 控件格渲染(可独立复用)
