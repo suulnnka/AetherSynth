@@ -8,16 +8,21 @@ import { seq } from './sequencer.js';
 import { sources } from './sources.js';
 import { drums } from './drums.js';
 import { processors } from './processors.js';
+import { effects } from './effects.js';
 import { math } from './math.js';
 import { outputs } from './outputs.js';
 
 // 每一项都是「组」(多个 def 的扁平映射);单文件单组件也要包一层
-const GROUPS = { controls, keyboard: { keyboard }, sequencer: { seq }, sources, drums, processors, math, outputs };
+const GROUPS = {
+  controls, keyboard: { keyboard }, sequencer: { seq }, sources, drums,
+  processors, effects, math, outputs
+};
 
 export const MODULE_ORDER = [
   'knob', 'bigknob', 'fader', 'hfader', 'touch', 'biknob', 'step6', 'step10', 'step4', 'chrom', 'switch', 'keyboard', 'seq',
   'vco', 'fm', 'lfo', 'noise', 'mic', 'kick', 'snare', 'hat',
   'vcf', 'vca', 'adsr', 'delay', 'atten', 'mult', 'quant', 'sh', 'mix', 'midicv',
+  'comp', 'bquant', 'sred',
   'add', 'sub', 'mul', 'div', 'avg', 'round', 'floor', 'ceil', 'sel',
   'spk', 'scope', 'xy', 'rec'
 ];

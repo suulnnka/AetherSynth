@@ -86,11 +86,13 @@ export function buildSongPatch(s) {
   addCable(gtV.vca.id, 'OUT', mix2.id, 'B');
   addCable(ldV.vca.id, 'OUT', mix2.id, 'C');
 
-  // 两条母线并联进喇叭(输入口自动求和):鼓母线 + 乐器母线
+  // 两条母线并联进喇叭(输入口自动求和),立体声:L / R 各接双份
   const spk = createModule('spk', 122, 12);
   const scope = createModule('scope', 122, 18);
-  addCable(mix1.id, 'OUT', spk.id, 'IN');
-  addCable(mix2.id, 'OUT', spk.id, 'IN');
+  addCable(mix1.id, 'OUT', spk.id, 'L');
+  addCable(mix1.id, 'OUT', spk.id, 'R');
+  addCable(mix2.id, 'OUT', spk.id, 'L');
+  addCable(mix2.id, 'OUT', spk.id, 'R');
   addCable(mix2.id, 'OUT', scope.id, 'IN');
   fitView();
 }

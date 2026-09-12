@@ -61,7 +61,15 @@ export function deserialize(data) {
     if (!DEFS[md.t]) return;
     createModule(md.t, md.x, md.y, md.i, md.s);
   });
-  (data.cables || []).forEach(cd => addCable(cd.a[0], cd.a[1], cd.b[0], cd.b[1], cd.c));
+  (data.cables || []).forEach(cd => {
+    if (addCable(cd.a[0], cd.a[1], cd.b[0], cd.b[1], cd.c)) return;
+    // 旧版补丁兼容:喇叭单声道 IN 口拆分为 L / R 双接线
+    const m = state.mods.get(cd.b[0]);
+    if (m && m.def.id === 'spk' && cd.b[1] === 'IN') {
+      addCable(cd.a[0], cd.a[1], cd.b[0], 'L', cd.c);
+      addCable(cd.a[0], cd.a[1], cd.b[0], 'R', cd.c);
+    }
+  });
   // 恢复工坊在制设计与外观
   if (studioPanel()) {
     studioPanel().clear();

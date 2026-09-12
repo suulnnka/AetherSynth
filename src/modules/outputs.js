@@ -8,31 +8,52 @@ import { kit } from '../kit/index.js';
 export const outputs = {
   spk: {
     id: 'spk', name: '喇叭', en: 'SPEAKER', cat: 'output', w: 4, h: 5,
-    desc: '把音频送到电脑扬声器。自带 20Hz 高通,防止 CV 直流进音响;屏幕显示电平。',
-    ports: [{ id: 'IN', dir: 'in', name: 'IN', desc: '音频输入' }],
+    desc: '立体声监听:L / R 双声道输入,各自带 20Hz 高通防直流;屏幕显示双声道电平与削波。只接 L 时右声道静音。',
+    ports: [
+      { id: 'L', dir: 'in', name: 'L', desc: '左声道输入(音频)' },
+      { id: 'R', dir: 'in', name: 'R', desc: '右声道输入(音频)' }
+    ],
     build() {
-      const hp = ctx.createBiquadFilter(); hp.type = 'highpass'; hp.frequency.value = 20;
-      const g = ctx.createGain(); g.gain.value = 0.8;
-      this.ins.IN.connect(hp); hp.connect(g); g.connect(ctx.destination);
-      this.mon('IN', hp);
-      this._peak = 0; this._clip = 0;
+      // 合并为真正的立体声输出:L → 声道 0,R → 声道 1
+      this.merger = ctx.createChannelMerger(2);
+      this.merger.connect(ctx.destination);
+      const mkSide = (port, ch) => {
+        const hp = ctx.createBiquadFilter(); hp.type = 'highpass'; hp.frequency.value = 20;
+        const g = ctx.createGain(); g.gain.value = 0.8;
+        this.ins[port].connect(hp); hp.connect(g); g.connect(this.merger, 0, ch);
+        this.mon(port, hp);
+      };
+      mkSide('L', 0); mkSide('R', 1);
+      this._pkL = 0; this._pkR = 0; this._clip = 0;
       kit.screen(this, 'scr');
     },
     tick() {
-      const m = this.mons.IN, s = this.scr;
-      if (!m || !s) return;
-      let pk = 0;
-      for (let i = 0; i < m.buf.length; i += 4) pk = Math.max(pk, Math.abs(m.buf[i]));
-      this._peak = Math.max(this._peak * 0.92, pk);
-      if (pk > 0.99) this._clip = 8;
+      const mL = this.mons.L, mR = this.mons.R, s = this.scr;
+      if (!s || !mL || !mR) return;
+      let pkL = 0, pkR = 0;
+      for (let i = 0; i < mL.buf.length; i += 4) pkL = Math.max(pkL, Math.abs(mL.buf[i]));
+      for (let i = 0; i < mR.buf.length; i += 4) pkR = Math.max(pkR, Math.abs(mR.buf[i]));
+      this._pkL = Math.max(this._pkL * 0.92, pkL);
+      this._pkR = Math.max(this._pkR * 0.92, pkR);
+      if (pkL > 0.99 || pkR > 0.99) this._clip = 8;
       const { c, w: W, h: H } = s;
       c.fillStyle = '#0b0d10'; c.fillRect(0, 0, W, H);
-      const bh = clamp(this._peak, 0, 1) * (H - 10);
-      c.fillStyle = this._peak > 0.85 ? '#ffd24d' : '#7dffb0';
-      c.fillRect(4, H - 5 - bh, W - 20, bh);
-      c.fillStyle = this._clip > 0 ? '#ff5d5d' : '#445';
-      c.beginPath(); c.arc(W - 9, 9, 4, 0, 7); c.fill();
-      if (this._clip > 0) this._clip--;
+      const bw = (W - 16) / 2;
+      const bar = (x0, pk, label) => {
+        const bh = clamp(pk, 0, 1) * (H - 18);
+        c.fillStyle = pk > 0.85 ? '#ffd24d' : '#7dffb0';
+        c.fillRect(x0, H - 8 - bh, bw, bh);
+        c.fillStyle = '#8899aa'; c.font = '8px monospace'; c.textAlign = 'center';
+        c.fillText(label, x0 + bw / 2, H - 2);
+        c.textAlign = 'left';
+      };
+      bar(4, this._pkL, 'L');
+      bar(8 + bw, this._pkR, 'R');
+      if (this._clip > 0) {
+        c.fillStyle = '#ff5d5d';
+        c.beginPath(); c.arc(W - 7, 8, 3.5, 0, 7); c.fill();
+        this._clip--;
+      }
     }
   },
 

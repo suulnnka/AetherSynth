@@ -8,10 +8,10 @@ beforeEach(() => {
   DEFS_ORDER.length = 0;
 });
 
-test('registerAllModules:注册全部 44 个内置组件并排版接口', () => {
+test('registerAllModules:注册全部 47 个内置组件并排版接口', () => {
   registerAllModules();
-  assert.equal(DEFS_ORDER.length, 44);
-  assert.equal(Object.keys(DEFS).length, 44);
+  assert.equal(DEFS_ORDER.length, 47);
+  assert.equal(Object.keys(DEFS).length, 47);
   for (const id of MODULE_ORDER) {
     const d = DEFS[id];
     assert.ok(d, '缺少组件:' + id);
@@ -38,6 +38,25 @@ test('cvAll:标记的组件全部接口默认 CV', () => {
   registerAllModules();
   for (const p of DEFS.step6.ports) assert.equal(p.type, 'cv');
   for (const p of DEFS.sel.ports) assert.equal(p.type, 'cv');
+});
+
+test('音频效果器与立体声喇叭:端口类型正确', () => {
+  registerAllModules();
+  assert.equal(DEFS.comp.portsById.IN.type, 'audio');
+  assert.equal(DEFS.comp.portsById.THRESH.type, 'cv');
+  assert.equal(DEFS.comp.portsById.RATIO.type, 'cv');
+  assert.equal(DEFS.bquant.portsById.BITS.type, 'cv');
+  assert.equal(DEFS.sred.portsById.RATE.type, 'cv');
+  assert.deepEqual(DEFS.spk.ports.map(p => p.id), ['L', 'R']);
+  assert.equal(DEFS.spk.portsById.L.type, 'audio');
+});
+
+test('FLOW:三个效果器都有信号来路(休眠判定可用)', async () => {
+  registerAllModules();
+  const { FLOW } = await import('../src/core/flow.js');
+  for (const id of ['comp', 'bquant', 'sred']) {
+    assert.deepEqual(FLOW[id].OUT, ['IN'], id + ' 的 OUT 应由 IN 馈入');
+  }
 });
 
 test('registerDef + setDefOrder:动态注册不进入展示顺序表', () => {

@@ -34,6 +34,8 @@ export function demoPatch() {
   const modt = createModule('custom#demo', 42, 17);
   const vca = createModule('vca', 16, 4), spk = createModule('spk', 26, 4), scope = createModule('scope', 34, 3);
   const xy = createModule('xy', 52, 11);
+  // 顺便展示压限器:插在滤波器与压控放大之间
+  const cmp = createModule('comp', 26, 22);
   kc.setKnob(5); kr.setKnob(1.5);
   addCable(kb.id, 'GATE', env.id, 'GATE');
   addCable(kb.id, 'VOCT', vco.id, 'VOCT');
@@ -42,8 +44,10 @@ export function demoPatch() {
   addCable(kc.id, 'CV', vcf.id, 'CUTOFF');
   addCable(kr.id, 'CV', vcf.id, 'RESO');
   addCable(env.id, 'ENV', vca.id, 'GAIN');
-  addCable(vcf.id, 'LP', vca.id, 'IN');
-  addCable(vca.id, 'OUT', spk.id, 'IN');
+  addCable(vcf.id, 'LP', cmp.id, 'IN');
+  addCable(cmp.id, 'OUT', vca.id, 'IN');
+  addCable(vca.id, 'OUT', spk.id, 'L');
+  addCable(vca.id, 'OUT', spk.id, 'R');
   addCable(vca.id, 'OUT', scope.id, 'IN');
   addCable(modt.id, 'Prate', lfo.id, 'RATE');
   addCable(lfo.id, 'SIN', vco.id, 'FM');

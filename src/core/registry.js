@@ -33,7 +33,11 @@ export const PORT_TYPES = {
   'atten:IN': 'any', 'atten:OUT': 'any',
   'mult:IN': 'any', 'mult:O1': 'any', 'mult:O2': 'any', 'mult:O3': 'any', 'mult:O4': 'any',
   'scope:IN': 'any',
-  'xy:X': 'any', 'xy:Y': 'any'
+  'xy:X': 'any', 'xy:Y': 'any',
+  'comp:THRESH': 'cv', 'comp:RATIO': 'cv', 'comp:ATK': 'cv', 'comp:REL': 'cv',
+  'bquant:BITS': 'cv',
+  'sred:RATE': 'cv',
+  'spk:L': 'audio', 'spk:R': 'audio'
 };
 
 /** 线缆 / 接口按信号类型着色(Reaktor Blocks / VCV Rack 惯例) */

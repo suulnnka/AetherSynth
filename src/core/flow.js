@@ -24,7 +24,10 @@ export const FLOW = {
   mix: { OUT: ['A', 'B', 'C'] },
   midicv: { VOCT: ['MIDI'], GATE: ['MIDI'], VEL: ['MIDI'] },
   seq: { CV: ['CLK'], GATE: ['CLK'], MIDI: ['CLK'] },
-  rec: { OUT: ['IN'] }
+  rec: { OUT: ['IN'] },
+  comp: { OUT: ['IN'] },
+  bquant: { OUT: ['IN'] },
+  sred: { OUT: ['IN'] }
 };
 
 /** 显示 / 录音终端也算信号归宿(否则示波器永远休眠)。
