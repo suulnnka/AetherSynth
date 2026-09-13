@@ -17,7 +17,7 @@ import { clearAll } from '../core/serialize.js';
 import { fitView } from '../core/view.js';
 import { toast } from '../ui/toast.js';
 import { t } from '../core/i18n.js';
-import { phrase } from './minimoog-songs.js';
+import { phrase } from './classic-synth-songs.js';
 
 /* 五声音阶钟琴句(C 大调五声:C D E G A,跨两个八度) */
 const MELODY = [

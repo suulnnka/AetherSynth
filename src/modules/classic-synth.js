@@ -1,4 +1,4 @@
-/* 迷你穆格 MINIMOOG —— 向 Model D 致敬的单音合成器组件。
+/* 经典合成器 CLASSIC SYNTH —— 经典单音模拟合成器架构的组件。
    ---------------------------------------------------------------------
    信号链(与原版一致):3 振荡器 + 噪声 → 混音器 → 24dB 低通滤波器
    → 响度包络 → 输出;滤波包络经 CONTOUR 调制滤波器;OSC3 可切为
@@ -14,9 +14,9 @@ const WAVE_LABELS = ['三角', '锯齿', '方波'];
 const WAVE_TYPES = ['triangle', 'sawtooth', 'square'];
 const OSC3_MODES = ['键盘', 'LFO'];
 
-export const minimoog = {
-  id: 'minimoog', name: '迷你穆格', en: 'MINIMOOG', cat: 'source', w: 30, h: 18,
-  desc: '单音合成器(向 Model D 致敬):三振荡器 + 噪声 → 混音器 → 24dB 低通(EMPHASIS 共振 / CONTOUR 包络调制)→ 双 ADSR(滤波 / 响度)→ 输出;OSC3 可切 LFO 作调制源,GLIDE 滑音。内置键盘:电脑键 A W S E D… 演奏,支持外部 GATE / V-OCT。',
+export const classicSynth = {
+  id: 'classic-synth', name: '经典合成器', en: 'CLASSIC SYNTH', cat: 'source', w: 30, h: 18,
+  desc: '经典单音合成器:三振荡器 + 噪声 → 混音器 → 24dB 低通(EMPHASIS 共振 / CONTOUR 包络调制)→ 双 ADSR(滤波 / 响度)→ 输出;OSC3 可切 LFO 作调制源,GLIDE 滑音。内置键盘:电脑键 A W S E D… 演奏,支持外部 GATE / V-OCT。',
   ports: [
     { id: 'OUT', dir: 'out', name: 'OUT', desc: '合成器输出(单声道)' },
     { id: 'MIDI', dir: 'in', name: 'MIDI', desc: 'MIDI 音符输入:可直接接 MIDI键盘 / 音序器的 MIDI 口' },
@@ -193,7 +193,7 @@ export const minimoog = {
     this.f1.Q.setTargetAtTime(q, ctx.currentTime, 0.01);
     this.f2.Q.setTargetAtTime(q, ctx.currentTime, 0.01);
   },
-  ui() { uiMinimoog(this); },
+  ui() { uiClassicSynth(this); },
   tick() {
     // 外部 GATE / V-OCT
     const e = this.edge('GATE');
@@ -214,7 +214,7 @@ export const minimoog = {
 };
 
 /** 面板:分区 + 控件 + 键盘 */
-function uiMinimoog(mod) {
+function uiClassicSynth(mod) {
   const body = mod.body;
   body.style.cssText += ';display:flex;flex-direction:column;gap:5px;padding:2px 3px;overflow:hidden';
   const group = (title, children) => {
@@ -280,7 +280,7 @@ function uiMinimoog(mod) {
     group('响度包络', ['lA', 'lD', 'lS', 'lR'].map(k => slider(k, k[1].toUpperCase()))),
     group('音量', [kn('vol', 'VOL', 0, 10)])
   );
-  // 键盘(最小穆格也有琴)
+  // 键盘区
   const keyHost = document.createElement('div');
   keyHost.style.cssText = 'flex:0 0 118px;min-height:0';
   body.append(row1, row2, keyHost);
@@ -291,7 +291,7 @@ function uiMinimoog(mod) {
 }
 
 /** 滑条(响度 / 滤波包络的 A D S R) */
-minimoog._mkSlider = function (key, label) {
+classicSynth._mkSlider = function (key, label) {
   const wrap = document.createElement('div');
   wrap.style.cssText = 'width:26px;height:100%;display:flex;flex-direction:column;align-items:center;gap:2px';
   const track = document.createElement('div');

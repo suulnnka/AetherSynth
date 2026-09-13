@@ -10,9 +10,9 @@
 
 ## 界面速览
 
-「歌曲 → 穆格拆解 · Model D 分立搭棚」示例:三 VCO → 混音(含噪声)→ 滤波(CONTOUR 包络)→ VCA → 喇叭,音序器自动循环演奏。
+「歌曲 → 经典合成器拆解 · 分立搭棚」示例:三 VCO → 混音(含噪声)→ 滤波(CONTOUR 包络)→ VCA → 喇叭,音序器自动循环演奏。
 
-![穆格拆解 · Model D 分立搭棚](docs/model-d.png)
+![经典合成器拆解 · 分立搭棚](docs/classic-teardown.png)
 
 ## 运行
 

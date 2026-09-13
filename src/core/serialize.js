@@ -63,9 +63,11 @@ export function deserialize(data) {
       mkCompositeDef(md.t, md.s.ports, md.s.w || 8, md.s.h || 4);
     }
   });
+  const LEGACY_DEFS = { minimoog: 'classic-synth' };   // 组件改名后的旧存档兼容
   (data.modules || []).forEach(md => {
-    if (!DEFS[md.t]) return;
-    createModule(md.t, md.x, md.y, md.i, md.s);
+    const t = LEGACY_DEFS[md.t] || md.t;
+    if (!DEFS[t]) return;
+    createModule(t, md.x, md.y, md.i, md.s);
   });
   (data.cables || []).forEach(cd => {
     if (addCable(cd.a[0], cd.a[1], cd.b[0], cd.b[1], cd.c, { quiet: true })) return;

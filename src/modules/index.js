@@ -8,7 +8,7 @@ import { seq, roll } from './sequencer.js';
 import { sources } from './sources.js';
 import { advOsc } from './adv-osc.js';
 import { clock } from './clock.js';
-import { minimoog } from './minimoog.js';
+import { classicSynth } from './classic-synth.js';
 import { drums } from './drums.js';
 import { processors } from './processors.js';
 import { effects } from './effects.js';
@@ -21,11 +21,11 @@ import { outputs } from './outputs.js';
 // 每一项都是「组」(多个 def 的扁平映射);单文件单组件也要包一层
 const GROUPS = {
   controls, keyboard: { keyboard }, sequencer: { seq, roll }, sources, advOsc, clock: { clock }, drums,
-  processors, effects, math, logic, fx, cvmod, outputs, minimoog: { minimoog }
+  processors, effects, math, logic, fx, cvmod, outputs, classicSynth: { classicSynth }
 };
 
 export const MODULE_ORDER = [
-  'minimoog', 'knob', 'bigknob', 'fader', 'hfader', 'touch', 'biknob', 'step6', 'step10', 'step4', 'chrom', 'switch', 'keyboard', 'seq', 'roll',
+  'classic-synth', 'knob', 'bigknob', 'fader', 'hfader', 'touch', 'biknob', 'step6', 'step10', 'step4', 'chrom', 'switch', 'keyboard', 'seq', 'roll',
   'vco', 'wt', 'phys', 'noiseo', 'fm', 'lfo', 'noise', 'mic', 'envf', 'clk', 'kick', 'snare', 'hat',
   'vcf', 'vca', 'amp', 'adsr', 'delay', 'atten', 'mult', 'mult8', 'quant', 'sh', 'mix', 'midicv', 'ringmod', 'fmod', 'glide',
   'comp', 'bquant', 'sred', 'drive', 'chorus', 'reverb', 'pan',

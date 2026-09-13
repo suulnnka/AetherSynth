@@ -42,13 +42,13 @@ export const defDesc = d => (LANG === 'zh' ? d.desc : (EN_DESCS[d.id] ?? d.desc)
 /* 示例 / 歌曲条目英文名(按 id) */
 const ITEM_EN = {
   'star': 'Star Funk', 'nebula': 'Nebula Waltz', 'jump': 'Jump Run',
-  'm-dawn': 'Moog · Dawn Light (70 BPM)',
-  'm-funk': 'Moog · Funk Groove (115 BPM)',
-  'm-rain': 'Moog · Arp Rain (128 BPM)',
-  'm-modeld': 'Moog Teardown · Model D discrete build (120 BPM)',
+  'm-dawn': 'Classic Synth · Dawn Light (70 BPM)',
+  'm-funk': 'Classic Synth · Funk Groove (115 BPM)',
+  'm-rain': 'Classic Synth · Arp Rain (128 BPM)',
+  'classic-teardown': 'Classic Synth Teardown · discrete build (120 BPM)',
   'fm-bell': 'FM Synthesis · 2-operator bells (100 BPM)',
   'chip-quest': 'Pixel Expedition · 8-bit long form (512 steps / 64 bars)',
-  'nsf-1': '8-bit Classic Track'
+  'kalinka-1': 'Open-Source 8-bit · Kalinka (pently, zlib)'
 };
 export const itemName = item =>
   LANG === 'zh' ? (item.label ?? item.name) : (ITEM_EN[item.id] ?? item.label ?? item.name);

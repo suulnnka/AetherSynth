@@ -11,9 +11,9 @@ real machine, patch them together with 3.5mm cables and make it speak — plus a
 
 ## A look inside
 
-The "Moog Teardown · Model D discrete build" demo from the Songs menu: three VCOs → mixer (noise included) → filter (CONTOUR envelope) → VCA → speaker, sequenced on a loop.
+The "Classic Synth Teardown · discrete build" demo from the Songs menu: three VCOs → mixer (noise included) → filter (CONTOUR envelope) → VCA → speaker, sequenced on a loop.
 
-![Moog Teardown · Model D discrete build](docs/model-d.png)
+![Classic Synth Teardown · discrete build](docs/classic-teardown.png)
 
 ## Running
 

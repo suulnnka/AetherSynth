@@ -1,20 +1,28 @@
-/* NSF 转谱示例:四轨完整还原一段 NES chiptrace 的 64 小节全曲(100 BPM)。
+/* 开源音序示例:四轨完整还原一段开源 NES 音序的 64 小节全曲(100 BPM)。
+   ---------------------------------------------------------------------
+   音序出处:「RHDE Kalinka」,选自 pinobatch/pently —— Damian Yerrick 的
+   开源 NES 音乐引擎及其示例乐谱 audio/pino-a53.pently(zlib 许可证,
+   https://github.com/pinobatch/pently);原曲是 I. Larionov 的俄罗斯民歌
+   (1860 年代,公有领域),NES 编配:D. Yerrick。数据见 ./kalinka-data.js。
+   源曲 4/4、140 BPM、16 分音符最小单位(与卷帘网格一一对应),全曲 17
+   小节,未超出演示的音序器范围;为适配卷帘 C2~C6 键域整体移高八度,
+   乐谱中的逐帧琶音记号(ENM/EN055)简化为单音。
    ---------------------------------------------------------------------
    记谱全部存在钢琴卷帘里(音符可变长,故不用步进音序器):
-     原曲本体为 16 小节循环;全曲按标准曲式编为 4 个乐段 × 16 小节,
-     每轨 4 个卷帘各装一个乐段(卷帘容量 1~16 小节):
-       乐段 1 引子 8 小节(贝斯+镲)→ 主题前半
-       乐段 2 主题后半 → 主题前半
-       乐段 3 Breakdown 8 小节(旋律休止)→ 旋律回归
-       乐段 4 主题后半 → 末句重复 → 终止长音
+     源曲按标准曲式编为 4 个乐段 × 16 小节,每轨 4 个卷帘各装一个乐段
+     (卷帘容量 1~16 小节),材料全部取自源谱(循环即乐句):
+       乐段 1 引子 2 小节(三声部长音 + 军鼓)→ 主题 8 → 副歌 4 → 引子回声 2
+       乐段 2 副歌 → 主题 → 副歌
+       乐段 3 Breakdown 8 小节(和弦休止,贝斯 + 鼓)→ 主题回归
+       乐段 4 主题 → 副歌 → 军鼓过门 → 终句长音(A♭ 收束)
    乐段切换的搭棚:
      时钟(8 分音符脉冲)→ 512 步音序器只当「乐段选择器」用:每乐段
      128 步依次输出 0 / 2.5 / 5 / 7.5V,送给 4 个选择器;段选器把 +10V
      只接在自己的通道上,于是任一时刻只有当前乐段的 4 个卷帘收到 PLAY 门。
      三条旋律轨各有 1 个选择器,把「当前乐段卷帘」的 CV 切给音色链
      (停着的卷帘 CV 保持旧值,不能直接并联;GATE 停止时归 0,可直接并联)。
-   音色:GATE 直推 VCA(NES 无音量包络,门开即响),方波主音 / 方波
-   和声 / 三角波,噪声镲直接由 GATE 触发。数据见 ./nsf-data.js。 */
+   音色:GATE 直推 VCA(NES 无音量包络,门开即响),方波主音(源曲
+   pulse1)/ 方波和声贝斯(pulse2)/ 三角波,噪声鼓组直接由 GATE 触发。 */
 
 import { firstGesture, getCtx } from '../core/audio.js';
 import { createModule } from '../core/module.js';
@@ -23,17 +31,17 @@ import { clearAll } from '../core/serialize.js';
 import { fitView } from '../core/view.js';
 import { toast } from '../ui/toast.js';
 import { t } from '../core/i18n.js';
-import { NSF_TRACKS } from './nsf-data.js';
+import { KALINKA_TRACKS } from './kalinka-data.js';
 
 const MIX_CH = ['A', 'B', 'C'];
 
-export const NSF_DEMO = {
-  id: 'nsf-1',
-  name: '8bit 经典曲目',
-  build: () => buildNsfSong()
+export const KALINKA_DEMO = {
+  id: 'kalinka-1',
+  name: '开源 8bit · Kalinka',
+  build: () => buildKalinkaSong()
 };
 
-export function buildNsfSong() {
+export function buildKalinkaSong() {
   clearAll();
   firstGesture();
   const c0 = getCtx();
@@ -65,14 +73,14 @@ export function buildNsfSong() {
   for (let t = 0; t < 4; t++)
     for (let s = 0; s < 4; s++) {
       const r = createModule('roll', X[t], Y[s], null, {
-        notes: NSF_TRACKS[KEYS[t]][s].map(([c, k, l, v]) => ({ c, k, l, v })),
+        notes: KALINKA_TRACKS[KEYS[t]][s].map(([c, k, l, v]) => ({ c, k, l, v })),
         bpm: 100, bars: 16, gate: 80
       });
       addCable(play[s].id, 'OUT', r.id, 'PLAY');
       rolls[t].push(r);
     }
 
-  /* ---- 旋律音色:方波主音 / 方波和声 / 三角波贝斯 ---- */
+  /* ---- 旋律音色:方波主音 / 方波和声贝斯 / 三角波 ---- */
   const mix1 = createModule('mix', 114, 17);
   [['p1', 0, 'SQR', 8], ['p2', 1, 'SQR', 25], ['tri', 2, 'TRI', 42]]
     .forEach(([key, t, wave, y]) => {
@@ -89,11 +97,11 @@ export function buildNsfSong() {
       addCable(vca.id, 'OUT', mix1.id, MIX_CH[t]);
     });
 
-  /* ---- 噪声镲:当前段卷帘的 GATE 直接触发 ---- */
+  /* ---- 噪声鼓组:当前段卷帘的 GATE 直接触发 ---- */
   const hat = createModule('hat', 101, 59);
   for (let s = 0; s < 4; s++) addCable(rolls[3][s].id, 'GATE', hat.id, 'TRIG');
 
-  /* ---- 母线:三轨先混,再与镲合并 → 喇叭 + 示波器 ---- */
+  /* ---- 母线:三轨先混,再与鼓合并 → 喇叭 + 示波器 ---- */
   const mix2 = createModule('mix', 123, 17);
   const spk = createModule('spk', 132, 17);
   const scope = createModule('scope', 132, 24);
@@ -104,5 +112,5 @@ export function buildNsfSong() {
   addCable(mix2.id, 'OUT', scope.id, 'IN');
 
   fitView();
-  toast(t('8bit 经典曲目:四轨 × 4 乐段(每条卷帘 16 小节)钢琴卷帘,全曲 64 小节自动轮换,100 BPM', '8-bit classic track: 4 tracks × 4 movements (16 bars per roll) of piano rolls, the full 64-bar song auto-advancing at 100 BPM'));
+  toast(t('开源音序「Kalinka」(pinobatch/pently,zlib):四轨 × 4 乐段(每条卷帘 16 小节),全曲 64 小节自动轮换,100 BPM', 'Open-source sequence "Kalinka" (pinobatch/pently, zlib): 4 tracks × 4 movements (16 bars per roll), the full 64-bar song auto-advancing at 100 BPM'));
 }

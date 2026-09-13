@@ -1,6 +1,6 @@
-/* 穆格示例乐曲:三首用「迷你穆格」演奏的小品。
-   每首 = 时钟 + 音序器(128 步内画好的旋律)+ 迷你穆格(+ 可选延迟),
-   音序器 CV/Gate 驱动穆格的 V-OCT / GATE。 */
+/* 经典合成器示例乐曲:三首用「经典合成器」演奏的小品。
+   每首 = 时钟 + 音序器(128 步内画好的旋律)+ 经典合成器(+ 可选延迟),
+   音序器 CV/Gate 驱动合成器的 V-OCT / GATE。 */
 
 import { firstGesture, getCtx } from '../core/audio.js';
 import { createModule } from '../core/module.js';
@@ -52,38 +52,38 @@ const ARP = [
   [12, 12, 1], [13, 16, 1], [14, 12, 1], [15, 9, 1]
 ];
 
-export const MOOG_PIECES = [
+export const CLASSIC_PIECES = [
   {
-    id: 'm-dawn', name: '晨光', label: '穆格 · 晨光(70 BPM)',
-    build: () => buildMoogPiece({
+    id: 'm-dawn', name: '晨光', label: '经典合成器 · 晨光(70 BPM)',
+    build: () => buildClassicPiece({
       name: '晨光', bpm: 70, len: 32, gate: 8,
       steps: phrase(DAWN_NOTES),
-      moog: { w1: 1, cutoff: 6, emph: 4, contour: 7, glide: 3, lA: 3, lD: 5, lS: 7, lR: 6, vol: 6 },
+      synth: { w1: 1, cutoff: 6, emph: 4, contour: 7, glide: 3, lA: 3, lD: 5, lS: 7, lR: 6, vol: 6 },
       delay: true
     })
   },
   {
-    id: 'm-funk', name: '放克律动', label: '穆格 · 放克律动(115 BPM)',
-    build: () => buildMoogPiece({
+    id: 'm-funk', name: '放克律动', label: '经典合成器 · 放克律动(115 BPM)',
+    build: () => buildClassicPiece({
       name: '放克律动', bpm: 115, len: 16, gate: 3,
       steps: phrase(FUNK_NOTES),
-      moog: { w2: 2, cutoff: 4, emph: 8, contour: 8, glide: 0, lA: 0, lD: 2, lS: 3, lR: 2, vol: 6 },
+      synth: { w2: 2, cutoff: 4, emph: 8, contour: 8, glide: 0, lA: 0, lD: 2, lS: 3, lR: 2, vol: 6 },
       delay: false
     })
   },
   {
-    id: 'm-rain', name: '琶音雨', label: '穆格 · 琶音雨(128 BPM)',
-    build: () => buildMoogPiece({
+    id: 'm-rain', name: '琶音雨', label: '经典合成器 · 琶音雨(128 BPM)',
+    build: () => buildClassicPiece({
       name: '琶音雨', bpm: 128, len: 16, gate: 5,
       steps: phrase(ARP.concat(ARP)),
-      moog: { w1: 2, cutoff: 5, emph: 6, contour: 5, glide: 0, lA: 0, lD: 3, lS: 5, lR: 3, vol: 6 },
+      synth: { w1: 2, cutoff: 5, emph: 6, contour: 5, glide: 0, lA: 0, lD: 3, lS: 5, lR: 3, vol: 6 },
       delay: true
     })
   }
 ];
 
-/** 搭建一首穆格小品:时钟 + 音序器(旋律)+ 迷你穆格(+ 延迟)→ 喇叭 */
-export function buildMoogPiece(p) {
+/** 搭建一首合成器小品:时钟 + 音序器(旋律)+ 经典合成器(+ 延迟)→ 喇叭 */
+export function buildClassicPiece(p) {
   clearAll();
   firstGesture();
   const c0 = getCtx();
@@ -98,16 +98,16 @@ export function buildMoogPiece(p) {
     { steps: p.steps.slice(), len: p.len, gate: p.gate ?? 6 });
   addCable(clk.id, 'SQR', seq.id, 'CLK');
 
-  // 迷你穆格:音序器驱动
-  const mm = createModule('minimoog', 24, 2);
-  for (const [k, v] of Object.entries(p.moog || {})) {
+  // 经典合成器:音序器驱动
+  const mm = createModule('classic-synth', 24, 2);
+  for (const [k, v] of Object.entries(p.synth || {})) {
     mm.state[k] = v;
     mm.applyParam(k, v);
   }
   addCable(seq.id, 'CV', mm.id, 'V/OCT');
   addCable(seq.id, 'GATE', mm.id, 'GATE');
 
-  // 输出链:穆格 → 延迟(可选)→ 喇叭 L / R
+  // 输出链:合成器 → 延迟(可选)→ 喇叭 L / R
   const spk = createModule('spk', 58, 2);
   if (p.delay) {
     const dly = createModule('delay', 58, 14);

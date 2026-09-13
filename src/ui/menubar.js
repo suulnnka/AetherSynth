@@ -13,11 +13,11 @@ import { encapsulateSelected } from '../core/composite.js';
 import { duplicateMod, deleteModWithConfirm } from '../core/module.js';
 import { saveSoon } from '../core/save.js';
 import { demoPatch } from '../songs/demo.js';
-import { MOOG_PIECES } from '../songs/minimoog-songs.js';
-import { MODEL_DEMO } from '../songs/model-d.js';
+import { CLASSIC_PIECES } from '../songs/classic-synth-songs.js';
+import { TEARDOWN_DEMO } from '../songs/classic-teardown.js';
 import { FM_DEMO } from '../songs/fm.js';
 import { CHIP_DEMO } from '../songs/chip.js';
-import { NSF_DEMO } from '../songs/nsf.js';
+import { KALINKA_DEMO } from '../songs/kalinka.js';
 import { SONGS } from '../songs/data.js';
 import { loadSong } from '../songs/player.js';
 import { toggleStudio, isStudioVisible } from '../workshop/studio.js';
@@ -103,14 +103,14 @@ const MENUS = [
       action: () => { firstGesture(); loadSong(s.id); }
     })),
     { sep: true },
-    ...MOOG_PIECES.map(p => ({
+    ...CLASSIC_PIECES.map(p => ({
       label: itemName(p),
       action: () => { firstGesture(); p.build(); }
     })),
-    { label: itemName(MODEL_DEMO), action: () => { firstGesture(); MODEL_DEMO.build(); } },
+    { label: itemName(TEARDOWN_DEMO), action: () => { firstGesture(); TEARDOWN_DEMO.build(); } },
     { label: itemName(FM_DEMO), action: () => { firstGesture(); FM_DEMO.build(); } },
     { label: itemName(CHIP_DEMO), action: () => { firstGesture(); CHIP_DEMO.build(); } },
-    { label: itemName(NSF_DEMO), action: () => { firstGesture(); NSF_DEMO.build(); } }
+    { label: itemName(KALINKA_DEMO), action: () => { firstGesture(); KALINKA_DEMO.build(); } }
   ]},
   { label: t('语言', 'Language'), items: [
     { label: '中文(简体)', checked: () => isZh(), action: () => setLang('zh') },

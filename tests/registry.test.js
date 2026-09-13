@@ -69,14 +69,14 @@ test('高级振荡器:波表 / 物理建模 / 噪声振荡器端口就位', () =
   assert.equal(DEFS.noiseo.portsById.COLOR.type, 'cv');
 });
 
-test('Minimoog:端口类型与引擎节点', () => {
+test('经典合成器:端口类型与引擎节点', () => {
   registerAllModules();
-  assert.deepEqual(DEFS.minimoog.ports.map(p => p.id + ':' + p.dir),
+  assert.deepEqual(DEFS['classic-synth'].ports.map(p => p.id + ':' + p.dir),
     ['OUT:out', 'MIDI:in', 'GATE:in', 'V/OCT:in']);
-  assert.equal(DEFS.minimoog.portsById.GATE.type, 'gate');
-  assert.equal(DEFS.minimoog.portsById['V/OCT'].type, 'cv');
-  assert.equal(DEFS.minimoog.portsById.MIDI.type, 'midi');
-  assert.equal(typeof DEFS.minimoog.midiIn, 'function');
+  assert.equal(DEFS['classic-synth'].portsById.GATE.type, 'gate');
+  assert.equal(DEFS['classic-synth'].portsById['V/OCT'].type, 'cv');
+  assert.equal(DEFS['classic-synth'].portsById.MIDI.type, 'midi');
+  assert.equal(typeof DEFS['classic-synth'].midiIn, 'function');
 });
 
 test('时钟与相位同步:clk / SYNC / DUTY / PUL 端口就位', () => {

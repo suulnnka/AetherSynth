@@ -2,7 +2,7 @@
    对应各 def 的 desc 字段,见 src/modules/。 */
 
 export const EN_DESCS = {
-  minimoog: 'Monophonic synth (a Model D tribute): three oscillators + noise → mixer → 24dB low-pass (EMPHASIS resonance / CONTOUR envelope) → dual ADSR (filter / loudness) → out; OSC3 can switch to LFO modulation, GLIDE portamento. Built-in keyboard: play with computer keys A W S E D F T G Y H U J K…, external GATE / V-OCT supported.',
+  'classic-synth': 'Classic monophonic synth: three oscillators + noise → mixer → 24dB low-pass (EMPHASIS resonance / CONTOUR envelope) → dual ADSR (filter / loudness) → out; OSC3 can switch to LFO modulation, GLIDE portamento. Built-in keyboard: play with computer keys A W S E D F T G Y H U J K…, external GATE / V-OCT supported.',
   knob: 'Standalone parameter cell: outputs 0~+10V. Drag up/down to adjust, Shift = fine, double-click resets to 5V, wheel trims.',
   bigknob: 'Oversized knob: higher travel resolution for fine tuning. Outputs 0~+10V.',
   fader: 'Vertical fader: click a track to jump / drag / wheel trims / double-click centers. Outputs 0~+10V.',

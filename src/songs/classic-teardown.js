@@ -1,4 +1,4 @@
-/* 穆格拆解示例:不用「迷你穆格」组件,用分立组件搭出一台 Model D。
+/* 经典合成器拆解示例:不用「经典合成器」组件,用分立组件搭出一台经典单音合成器。
    ---------------------------------------------------------------------
    模块对应关系(面板区块 → 组件):
      控制器   TUNE → 双极旋钮(振荡器 FM 口直流失谐)
@@ -17,7 +17,7 @@ import { clearAll } from '../core/serialize.js';
 import { fitView } from '../core/view.js';
 import { toast } from '../ui/toast.js';
 import { t } from '../core/i18n.js';
-import { phrase } from './minimoog-songs.js';
+import { phrase } from './classic-synth-songs.js';
 
 /* C 小调上行句:C Eb G Bb C Bb G Eb(每步 = 16 分音符) */
 const MELODY = [
@@ -25,13 +25,13 @@ const MELODY = [
   [8, 12, 2], [10, 10, 1], [12, 7, 2], [14, 3, 2]
 ];
 
-export const MODEL_DEMO = {
-  id: 'm-modeld',
-  name: '穆格拆解 · Model D 分立搭棚(120 BPM)',
-  build: () => buildModelD()
+export const TEARDOWN_DEMO = {
+  id: 'classic-teardown',
+  name: '经典合成器拆解 · 分立搭棚(120 BPM)',
+  build: () => buildClassicTeardown()
 };
 
-export function buildModelD() {
+export function buildClassicTeardown() {
   clearAll();
   firstGesture();
   const c0 = getCtx();
@@ -116,5 +116,5 @@ export function buildModelD() {
   addCable(vca.id, 'OUT', spk.id, 'R');
 
   fitView();
-  toast(t('穆格拆解:三 VCO → 混音(含噪声)→ 滤波(CONTOUR 包络)→ VCA → 喇叭,音序器自动循环演奏', 'Moog teardown: three VCOs → mixer (noise included) → filter (CONTOUR envelope) → VCA → speaker, sequenced on a loop'));
+  toast(t('经典合成器拆解:三 VCO → 混音(含噪声)→ 滤波(CONTOUR 包络)→ VCA → 喇叭,音序器自动循环演奏', 'Classic synth teardown: three VCOs → mixer (noise included) → filter (CONTOUR envelope) → VCA → speaker, sequenced on a loop'));
 }
